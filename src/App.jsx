@@ -110,6 +110,56 @@ const step2SymptomOptions = [
   { id: 'symptomPositiveBloodCulture', label: '血液培養陽性', implemented: true },
   { id: 'symptomNoLocalizing', label: '局所症状なし', implemented: true },
 ]
+const step2CategoryOptions = [
+  {
+    id: 'respiratory',
+    label: '呼吸器症状',
+    description: '咳、痰、呼吸困難、胸痛、SpO2低下など',
+    symptomIds: ['symptomRespiratory'],
+  },
+  {
+    id: 'urinary',
+    label: '尿路症状',
+    description: '排尿痛、頻尿、CVA叩打痛、尿カテーテルなど',
+    symptomIds: ['symptomUrinary'],
+  },
+  {
+    id: 'abdominal',
+    label: '腹痛・下痢',
+    description: '腹痛、右季肋部痛、黄疸、下痢、抗菌薬使用歴など',
+    symptomIds: ['symptomAbdominalPain', 'symptomDiarrhea'],
+  },
+  {
+    id: 'skin',
+    label: '皮膚軟部組織',
+    description: '発赤、腫脹、熱感、強い疼痛、水疱、壊死など',
+    symptomIds: ['symptomSkinFindings'],
+  },
+  {
+    id: 'boneJoint',
+    label: '骨・関節',
+    description: '関節痛、腰背部痛、人工関節、胸鎖関節痛など',
+    symptomIds: ['symptomJointPain', 'symptomBackPain'],
+  },
+  {
+    id: 'cns',
+    label: '中枢神経',
+    description: '頭痛、項部硬直、意識障害、急性頸部痛など',
+    symptomIds: ['symptomHeadache', 'symptomNeckPain'],
+  },
+  {
+    id: 'bloodstream',
+    label: '血流感染・感染性心内膜炎',
+    description: '悪寒戦慄、血液培養陽性、人工弁、ペースメーカーなど',
+    symptomIds: ['symptomChills', 'symptomPositiveBloodCulture'],
+  },
+  {
+    id: 'unknown',
+    label: '局所症状なし',
+    description: '感染臓器不明、FUO、LDH高値、B症状など',
+    symptomIds: ['symptomNoLocalizing'],
+  },
+]
 
 const respiratoryOptions = [
   { id: 'respCough', label: '咳' },
@@ -709,18 +759,19 @@ function App() {
     })
   }
 
-  function toggleStep2Symptom(value) {
+  function toggleStep2Category(symptomIds) {
     setForm((current) => {
-      const exists = current.step2Symptoms.includes(value)
+      const hasEverySymptom = symptomIds.every((id) =>
+        current.step2Symptoms.includes(id),
+      )
       return {
         ...current,
-        step2Symptoms: exists
-          ? current.step2Symptoms.filter((item) => item !== value)
-          : [...current.step2Symptoms, value],
+        step2Symptoms: hasEverySymptom
+          ? current.step2Symptoms.filter((item) => !symptomIds.includes(item))
+          : [...new Set([...current.step2Symptoms, ...symptomIds])],
       }
     })
   }
-
   function updateField(name, value) {
     setForm((current) => ({ ...current, [name]: value }))
   }
@@ -1044,19 +1095,32 @@ function App() {
                 </div>
               </div>
 
-              <fieldset className="choice-group">
-                <legend>Step2A 症候・局所症状</legend>
-                <div className="toggle-grid symptom-grid">
-                  {step2SymptomOptions.map((symptom) => (
-                    <label key={symptom.id} className="toggle-card">
-                      <input
-                        type="checkbox"
-                        checked={form.step2Symptoms.includes(symptom.id)}
-                        onChange={() => toggleStep2Symptom(symptom.id)}
-                      />
-                      <span>{symptom.label}</span>
-                    </label>
-                  ))}
+              <fieldset className="choice-group step2-category-panel">
+                <legend>Step2A 症候カテゴリ</legend>
+                <p className="field-hint">
+                  まず患者の症候を選択してください。選択したカテゴリだけ詳細質問が開きます。
+                </p>
+                <div className="step2-category-grid">
+                  {step2CategoryOptions.map((category) => {
+                    const isActive = category.symptomIds.some((id) =>
+                      form.step2Symptoms.includes(id),
+                    )
+                    return (
+                      <button
+                        key={category.id}
+                        type="button"
+                        className={`category-toggle-card ${isActive ? 'active' : ''}`}
+                        aria-expanded={isActive}
+                        onClick={() => toggleStep2Category(category.symptomIds)}
+                      >
+                        <span className="category-toggle-icon">{isActive ? '▼' : '▶'}</span>
+                        <span>
+                          <strong>{category.label}</strong>
+                          <small>{category.description}</small>
+                        </span>
+                      </button>
+                    )
+                  })}
                 </div>
               </fieldset>
 
@@ -1683,7 +1747,7 @@ function App() {
             </section>
           )}
 
-          <StepNavigation activeStep={activeStep} onStepChange={setActiveStep} />
+          <StepNavigation activeStep={activeStep} onStepChange={setActiveStep} onReset={resetAll} />
         </form>
 
         <aside className={`panel result-panel ${result.tone}`}>
@@ -1976,7 +2040,7 @@ function StepInputGuide({ activeStep }) {
   )
 }
 
-function StepNavigation({ activeStep, onStepChange }) {
+function StepNavigation({ activeStep, onStepChange, onReset }) {
   const currentIndex = stepOrder.indexOf(activeStep)
   const previousStep = stepOrder[currentIndex - 1]
   const nextStep = stepOrder[currentIndex + 1]
@@ -1990,6 +2054,9 @@ function StepNavigation({ activeStep, onStepChange }) {
         onClick={() => previousStep && onStepChange(previousStep)}
       >
         戻る
+      </button>
+      <button type="button" className="reset-nav-button" onClick={onReset}>
+        リセット
       </button>
       <button
         type="button"
@@ -2092,11 +2159,14 @@ function DiagnosticSummary({ result }) {
         </article>
       </section>
 
-      <article className="step-card info">
-        <div className="result-label">Dr. Ito Clinical Pearl</div>
-        <h3>{result.clinicalPearl.title}</h3>
+      <details className="step-card info clinical-pearl-disclosure">
+        <summary>
+          <span className="result-label">Dr. Ito Clinical Pearl</span>
+          <strong>{result.clinicalPearl.title}</strong>
+          <small>詳しく見る</small>
+        </summary>
         <p>{result.clinicalPearl.message}</p>
-      </article>
+      </details>
 
       <article className="step-card neutral">
         <div className="result-label">注意事項</div>

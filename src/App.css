@@ -337,6 +337,121 @@ h3 {
   gap: 10px;
 }
 
+
+.field-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.94rem;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.step2-category-panel {
+  border: 1px solid rgba(15, 118, 110, 0.16);
+  border-radius: 8px;
+  padding: 14px;
+  background: #f8fffd;
+}
+
+.step2-category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.category-toggle-card {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 10px;
+  min-height: 74px;
+  align-items: start;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 13px 14px;
+  background: #ffffff;
+  color: var(--text-h);
+  text-align: left;
+  cursor: pointer;
+}
+
+.category-toggle-card:hover,
+.category-toggle-card.active {
+  border-color: rgba(15, 118, 110, 0.38);
+  background: #dff7f2;
+  box-shadow: inset 0 0 0 1px rgba(15, 118, 110, 0.12);
+}
+
+.category-toggle-icon {
+  display: inline-flex;
+  width: 26px;
+  height: 26px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(15, 118, 110, 0.1);
+  color: #0f4f4a;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.category-toggle-card strong,
+.category-toggle-card small {
+  display: block;
+}
+
+.category-toggle-card strong {
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.category-toggle-card small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.clinical-pearl-disclosure summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  gap: 8px 12px;
+  align-items: center;
+  cursor: pointer;
+  list-style: none;
+}
+
+.clinical-pearl-disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.clinical-pearl-disclosure .result-label {
+  grid-column: 1 / -1;
+}
+
+.clinical-pearl-disclosure strong {
+  color: var(--text-h);
+  font-size: 1rem;
+}
+
+.clinical-pearl-disclosure small {
+  color: #1d4ed8;
+  font-weight: 800;
+}
+
+.reset-nav-button {
+  min-height: 52px;
+  border: 1px solid rgba(190, 18, 60, 0.28);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #9f1239;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.reset-nav-button:hover {
+  border-color: #be123c;
+  background: #fff1f3;
+}
 .toggle-card {
   position: relative;
   display: flex;
@@ -979,7 +1094,15 @@ a:focus-visible {
     top: 4px;
   }
 
-  .handoff div {
+
+  .step2-category-grid,
+  .step-bottom-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .category-toggle-card {
+    min-height: 68px;
+  }  .handoff div {
     grid-template-columns: 1fr;
     gap: 2px;
   }
