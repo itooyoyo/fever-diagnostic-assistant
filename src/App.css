@@ -1637,3 +1637,265 @@ a:focus-visible {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* iPhone readability and safe-area refinements */
+.input-guide-disclosure {
+  display: grid;
+  gap: 8px;
+}
+
+.input-guide-disclosure summary {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.input-guide-disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.input-guide-disclosure summary small {
+  color: var(--premium-primary);
+  font-weight: 800;
+}
+
+.input-guide-disclosure p {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .app-shell {
+    padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .workspace {
+    padding-inline: 10px;
+  }
+
+  .input-panel,
+  .panel {
+    border-radius: 16px;
+    padding: 14px 10px;
+  }
+
+  .hero-section {
+    min-height: auto;
+    padding: 20px 10px 18px;
+  }
+
+  .hero-copy {
+    border-radius: 18px;
+    padding: 16px;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 12vw, 3rem);
+  }
+
+  h2 {
+    font-size: 1.32rem;
+  }
+
+  h3 {
+    font-size: 1rem;
+  }
+
+  .lead {
+    margin-bottom: 16px;
+    font-size: 0.98rem;
+  }
+
+  .step-tabs {
+    display: flex;
+    gap: 8px;
+    margin-inline: -2px;
+    padding: 8px 2px 10px;
+    border-radius: 16px;
+    overflow-x: auto;
+    overflow-y: visible;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .step-tabs button {
+    flex: 0 0 min(42vw, 148px);
+    min-height: 48px;
+    border-radius: 14px;
+    padding: 8px 9px;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.22;
+    scroll-snap-align: start;
+    font-size: 0.82rem;
+  }
+
+  .step-tabs button::before {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    font-size: 0.72rem;
+  }
+
+  .step-heading,
+  .input-guide-card {
+    border-radius: 14px;
+    padding: 10px;
+  }
+
+  .step-heading {
+    position: static;
+    gap: 8px;
+  }
+
+  .step-heading p {
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+
+  .input-guide-card {
+    background: rgba(16, 44, 76, 0.9);
+    border-color: rgba(56, 189, 248, 0.28);
+  }
+
+  .input-guide-disclosure:not([open]) {
+    gap: 0;
+  }
+
+  .step-card,
+  .step-summary,
+  .summary-section,
+  .structured-block,
+  .disease-card-section,
+  .disease-card-details {
+    border-radius: 14px;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
+  }
+
+  .step-card,
+  .step-summary {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .summary-section {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .structured-block {
+    gap: 7px;
+    padding: 10px;
+    background: rgba(5, 18, 31, 0.42);
+  }
+
+  .step-card p,
+  .step-card li,
+  .step-summary p,
+  .structured-block li,
+  .disease-card-section li,
+  .disease-card-details li,
+  .disease-detail-grid p,
+  .todo-item span {
+    color: #eef8ff;
+  }
+
+  .structured-block h4,
+  .step-card h4,
+  .step-summary h4 {
+    color: #ffffff;
+  }
+
+  .step-card.caution,
+  .step-card.info,
+  .step-card.brady,
+  .step-card.neutral,
+  .step-card.clear {
+    border-color: rgba(148, 197, 255, 0.24);
+    background: linear-gradient(145deg, rgba(16, 44, 76, 0.9), rgba(7, 27, 46, 0.82));
+  }
+
+  .step-card.caution {
+    border-left: 4px solid var(--premium-warning);
+  }
+
+  .result-label {
+    color: #ffffff;
+  }
+
+  .match-count {
+    color: #fde68a;
+    font-size: 0.86rem;
+  }
+
+  .summary-card-heading {
+    display: grid;
+    gap: 8px;
+    padding-bottom: 10px;
+  }
+
+  .red-flag-banner {
+    position: static;
+    border-radius: 16px;
+    padding: 12px;
+  }
+
+  .red-flag-banner li {
+    color: #ffffff;
+    background: rgba(239, 68, 68, 0.32);
+  }
+
+  .toggle-card,
+  .category-toggle-card,
+  .organ-card,
+  .rank-card,
+  .todo-item {
+    min-height: 44px;
+    border-color: rgba(148, 197, 255, 0.24);
+    background: rgba(7, 27, 46, 0.46);
+  }
+
+  .toggle-card span,
+  .category-toggle-card span,
+  .organ-card,
+  .rank-card {
+    color: #f4fbff;
+  }
+
+  .disease-card {
+    gap: 12px;
+  }
+
+  .disease-card-section,
+  .disease-card-details summary {
+    padding: 12px;
+  }
+
+  .disease-detail-grid {
+    gap: 10px;
+    padding: 0 12px 12px;
+  }
+
+  .step-bottom-nav {
+    position: sticky;
+    bottom: max(8px, env(safe-area-inset-bottom, 0px));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 18px;
+    border-radius: 18px;
+    padding: 8px;
+    background: rgba(5, 18, 31, 0.94);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.36);
+  }
+
+  .step-bottom-nav button {
+    min-height: 46px;
+    border-radius: 13px;
+    padding: 0 8px;
+    font-size: 0.92rem;
+  }
+}

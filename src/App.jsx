@@ -2033,10 +2033,13 @@ function RedFlagBanner({ items }) {
 
 function StepInputGuide({ activeStep }) {
   return (
-    <article className="input-guide-card">
-      <div className="result-label">入力ガイド</div>
+    <details className="input-guide-card input-guide-disclosure">
+      <summary>
+        <span className="result-label">入力ガイド</span>
+        <small>詳しく見る</small>
+      </summary>
       <p>{stepInputGuides[activeStep]}</p>
-    </article>
+    </details>
   )
 }
 
