@@ -2199,6 +2199,10 @@ function ReevaluationCards({ result }) {
 }
 
 function DiseaseSummaryCard({ item, tone }) {
+  if (item.name === '感染性心内膜炎') {
+    return <InfectiveEndocarditisDiseaseCard item={item} tone={tone} />
+  }
+
   return (
     <article className={`step-card ${tone}`}>
       <div className="summary-card-heading">
@@ -2210,6 +2214,134 @@ function DiseaseSummaryCard({ item, tone }) {
       </div>
       <CardBlock title="一致した所見" items={item.matchedFindings} />
       <CardBlock title="次にやること" items={item.nextActions} />
+    </article>
+  )
+}
+
+function InfectiveEndocarditisDiseaseCard({ item, tone }) {
+  const redFlags = [
+    '人工弁、ペースメーカー、血液培養陽性、心雑音、塞栓症状がある場合は優先して評価を検討',
+    '心不全、弁周囲膿瘍、大きな疣贅、反復塞栓では心臓血管外科への早期相談を検討',
+    '黄色ブドウ球菌菌血症では感染性心内膜炎と転移性感染巣を必ず評価',
+  ]
+
+  const nextConfirmations = [
+    '血液培養3セットを採取し、原因菌推定につなげる',
+    '経胸壁心エコーを行い、必要時はTEEを検討',
+    '脳梗塞、腎梗塞、脾梗塞、腸腰筋膿瘍など転移性感染巣を検索',
+    '感染症科・循環器への相談を検討',
+  ]
+
+  return (
+    <article className={`step-card ${tone} disease-card ie-disease-card`}>
+      <div className="summary-card-heading disease-card-heading">
+        <div>
+          <div className="result-label">{item.category}</div>
+          <h3>感染性心内膜炎</h3>
+        </div>
+        <strong className="match-count">{item.matchCount}項目一致</strong>
+      </div>
+
+      <section className="disease-card-section red-flag-section">
+        <h4>Red Flag</h4>
+        <ul>
+          {redFlags.map((flag) => (
+            <li key={flag}>{flag}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="disease-card-section">
+        <h4>なぜ考えるか</h4>
+        <ul>
+          {item.matchedFindings.map((finding) => (
+            <li key={finding}>{finding}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="disease-card-section">
+        <h4>次に確認すること</h4>
+        <ul>
+          {[...item.nextActions, ...nextConfirmations].map((action, index) => (
+            <li key={`${action}-${index}`}>{action}</li>
+          ))}
+        </ul>
+      </section>
+
+      <details className="disease-card-details">
+        <summary>
+          <span>詳しく見る</span>
+          <small>症状、塞栓、初期対応、治療方針</small>
+        </summary>
+
+        <div className="disease-detail-grid">
+          <section>
+            <h4>典型的な症状</h4>
+            <ul>
+              <li>発熱（ほぼ全例）</li>
+              <li>悪寒戦慄（約50％）</li>
+              <li>易疲労感（約45％）</li>
+              <li>食欲不振・体重減少（約30％）</li>
+              <li>弁破壊による心不全症状</li>
+            </ul>
+          </section>
+
+          <section>
+            <h4>塞栓症状</h4>
+            <ul>
+              <li>脳梗塞、TIA</li>
+              <li>腎梗塞、脾梗塞</li>
+              <li>腸腰筋膿瘍</li>
+              <li>関節痛、筋肉痛</li>
+              <li>糸球体腎炎</li>
+            </ul>
+            <p className="clinical-pearl-mini">
+              感染巣不明の発熱では、塞栓症状が診断の手掛かりになることがあります。
+            </p>
+          </section>
+
+          <section>
+            <h4>身体所見</h4>
+            <ul>
+              <li>心雑音：約80％（ペースメーカーリード感染では聴取しにくい場合があります）</li>
+              <li>肝脾腫：約20％</li>
+              <li>点状出血：約30％</li>
+              <li>Janeway病変（手掌・足底の無痛性紅斑）</li>
+            </ul>
+          </section>
+
+          <section>
+            <h4>初期対応</h4>
+            <ul>
+              <li>血液培養3セット</li>
+              <li>経胸壁心エコー</li>
+              <li>必要時TEE</li>
+              <li>転移性感染巣検索</li>
+              <li>感染症科・循環器相談を検討</li>
+            </ul>
+          </section>
+
+          <section>
+            <h4>治療の考え方</h4>
+            <p>
+              培養採取後に経験的抗菌薬を検討します。原因菌、人工弁、市中・院内発症、腎機能、アレルギー等で選択は変わるため、培養結果に応じてde-escalationを検討してください。
+            </p>
+            <p>
+              適切な抗菌薬投与にもかかわらず感染制御困難、心不全、弁周囲膿瘍、大きな疣贅、反復塞栓などがある場合は、心臓血管外科への早期コンサルトを検討してください。
+            </p>
+          </section>
+
+          <section>
+            <h4>Clinical Pearl</h4>
+            <ul>
+              <li>黄色ブドウ球菌菌血症では感染性心内膜炎を必ず評価する。</li>
+              <li>熱源が別に見えても転移性感染巣を検索する。</li>
+              <li>ペースメーカー感染では心雑音を欠くことがある。</li>
+            </ul>
+          </section>
+        </div>
+      </details>
     </article>
   )
 }

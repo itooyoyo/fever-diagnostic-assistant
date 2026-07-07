@@ -1513,3 +1513,127 @@ a:focus-visible {
     grid-template-columns: 1fr;
   }
 }
+
+.disease-card {
+  gap: 16px;
+}
+
+.ie-disease-card {
+  border-color: rgba(239, 68, 68, 0.5);
+  background:
+    linear-gradient(145deg, rgba(239, 68, 68, 0.16), rgba(16, 44, 76, 0.82)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent);
+}
+
+.disease-card-heading {
+  border-bottom: 1px solid rgba(148, 197, 255, 0.18);
+  padding-bottom: 14px;
+}
+
+.disease-card-section {
+  display: grid;
+  gap: 8px;
+  border: 1px solid rgba(148, 197, 255, 0.16);
+  border-radius: 18px;
+  padding: 14px;
+  background: rgba(7, 27, 46, 0.28);
+}
+
+.disease-card-section h4,
+.disease-card-details h4 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 0.96rem;
+}
+
+.disease-card-section ul,
+.disease-card-details ul {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding-left: 1.15rem;
+  color: var(--premium-muted);
+}
+
+.red-flag-section {
+  border-color: rgba(239, 68, 68, 0.45);
+  border-left: 4px solid var(--premium-danger);
+  background: rgba(239, 68, 68, 0.14);
+}
+
+.red-flag-section h4 {
+  color: #fecaca;
+}
+
+.disease-card-details {
+  border: 1px solid rgba(250, 204, 21, 0.36);
+  border-radius: 18px;
+  padding: 0;
+  background: rgba(250, 204, 21, 0.08);
+  overflow: hidden;
+}
+
+.disease-card-details summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  min-height: 58px;
+  padding: 14px;
+  cursor: pointer;
+  color: #fde68a;
+  font-weight: 900;
+}
+
+.disease-card-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.disease-card-details summary::after {
+  content: "＋";
+  position: absolute;
+  right: 18px;
+  color: #fde68a;
+}
+
+.disease-card-details[open] summary::after {
+  content: "－";
+}
+
+.disease-card-details summary small {
+  color: rgba(254, 243, 199, 0.72);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.disease-detail-grid {
+  display: grid;
+  gap: 12px;
+  padding: 0 14px 14px;
+}
+
+.disease-detail-grid section {
+  display: grid;
+  gap: 8px;
+  border-top: 1px solid rgba(250, 204, 21, 0.18);
+  padding-top: 12px;
+}
+
+.disease-detail-grid p {
+  margin: 0;
+  color: var(--premium-muted);
+}
+
+.clinical-pearl-mini {
+  border-left: 3px solid var(--premium-warning);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(250, 204, 21, 0.1);
+  color: #fef3c7;
+  font-weight: 800;
+}
+
+@media (min-width: 760px) {
+  .disease-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
