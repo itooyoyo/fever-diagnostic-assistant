@@ -1899,3 +1899,194 @@ a:focus-visible {
     font-size: 0.92rem;
   }
 }
+
+/* Guide character and contrast refinements */
+.hero-section {
+  grid-template-columns: minmax(0, 1fr);
+  min-height: auto;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(56, 189, 248, 0.18), transparent 24rem),
+    linear-gradient(100deg, rgba(7, 27, 46, 0.98), rgba(7, 27, 46, 0.84));
+}
+
+.hero-copy {
+  max-width: 860px;
+}
+
+.guide-helper {
+  display: inline-grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  max-width: min(100%, 520px);
+  margin: 0 0 18px;
+}
+
+.guide-helper img {
+  width: 40px;
+  height: 40px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 8px 14px rgba(56, 189, 248, 0.18));
+}
+
+.guide-bubble {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  border: 1px solid rgba(56, 189, 248, 0.34);
+  border-radius: 14px;
+  padding: 9px 12px;
+  background: rgba(15, 42, 70, 0.9);
+  color: #ffffff;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
+}
+
+.guide-bubble::before {
+  content: "";
+  position: absolute;
+  left: -7px;
+  top: 15px;
+  width: 12px;
+  height: 12px;
+  border-left: 1px solid rgba(56, 189, 248, 0.34);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.34);
+  background: rgba(15, 42, 70, 0.9);
+  transform: rotate(45deg);
+}
+
+.guide-bubble strong {
+  color: #ffffff;
+  font-size: 0.94rem;
+  line-height: 1.25;
+}
+
+.guide-bubble span {
+  color: #cdefff;
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+select,
+input[type='number'],
+input[type='text'],
+input[type='search'],
+textarea {
+  border-color: #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+select::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: #64748b;
+  opacity: 1;
+}
+
+select option {
+  color: #0f172a;
+  background: #ffffff;
+}
+
+.unit-input small {
+  color: #dbeafe;
+}
+
+.step-card,
+.step-summary,
+.summary-section,
+.structured-block,
+.disease-card-section,
+.disease-card-details,
+.clinical-pearl-disclosure,
+.input-guide-card {
+  color: #f8fbff;
+}
+
+.step-card p,
+.step-card li,
+.step-summary p,
+.step-summary li,
+.summary-section p,
+.summary-section li,
+.structured-block p,
+.structured-block li,
+.disease-card-section li,
+.disease-card-details li,
+.clinical-pearl-disclosure p {
+  color: #eaf6ff;
+}
+
+.structured-block,
+.disease-card-section {
+  background: rgba(5, 18, 31, 0.5);
+}
+
+.step-card.info,
+.step-card.brady,
+.step-card.neutral,
+.step-card.clear,
+.step-card.caution {
+  background: linear-gradient(145deg, rgba(16, 44, 76, 0.9), rgba(7, 27, 46, 0.78));
+}
+
+.step-card.clear .result-label,
+.step-card.info .result-label,
+.step-card.brady .result-label,
+.step-card.neutral .result-label,
+.step-card.caution .result-label {
+  --tag-bg: rgba(56, 189, 248, 0.16);
+  --tag-text: #e0f2fe;
+}
+
+.todo-item {
+  color: #f8fbff;
+}
+
+.todo-item input {
+  background: #ffffff;
+}
+
+.disease-card-details summary::after {
+  content: "+";
+}
+
+.disease-card-details[open] summary::after {
+  content: "-";
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    background:
+      radial-gradient(circle at 8% 0%, rgba(56, 189, 248, 0.16), transparent 18rem),
+      linear-gradient(180deg, rgba(7, 27, 46, 0.98), rgba(7, 27, 46, 0.86));
+  }
+
+  .guide-helper {
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 9px;
+    margin-bottom: 14px;
+  }
+
+  .guide-helper img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .guide-bubble {
+    border-radius: 12px;
+    padding: 8px 10px;
+  }
+
+  .guide-bubble strong {
+    font-size: 0.88rem;
+  }
+
+  .guide-bubble span {
+    font-size: 0.78rem;
+  }
+
+  .hero-actions {
+    gap: 8px;
+  }
+}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import heroImg from './assets/hero.png'
+import guideCharacter from './assets/guide-character.png'
 import './App.css'
 import {
   assessEmergencySigns,
@@ -807,6 +807,13 @@ function App() {
           <p className="lead">
             発熱・炎症反応高値・原因不明発熱を総合内科的に順番に評価する診断支援ツール
           </p>
+          <div className="guide-helper" aria-label="診療ガイド">
+            <img src={guideCharacter} alt="" />
+            <div className="guide-bubble">
+              <strong>症状を順番に入力してください</strong>
+              <span>必要ならRed Flagも確認しましょう</span>
+            </div>
+          </div>
           <div className="hero-actions" aria-label="主要操作">
             <a href="#checker" className="primary-action">
               チェックを始める
@@ -814,13 +821,6 @@ function App() {
             <a href="#warning-signs" className="secondary-action">
               緊急サインを見る
             </a>
-          </div>
-        </div>
-        <div className="hero-visual" aria-hidden="true">
-          <img src={heroImg} alt="" />
-          <div className="vital-card">
-            <span>38.5 C</span>
-            <small>fever log</small>
           </div>
         </div>
       </section>
