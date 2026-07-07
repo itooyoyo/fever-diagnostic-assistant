@@ -2,6 +2,296 @@
   min-height: 100svh;
 }
 
+/* Dr. Ito Medical Apps Premium Design */
+:root {
+  --premium-bg: #071b2e;
+  --premium-card: rgba(16, 44, 76, 0.74);
+  --premium-card-strong: rgba(16, 44, 76, 0.92);
+  --premium-primary: #38bdf8;
+  --premium-secondary: #60a5fa;
+  --premium-success: #10b981;
+  --premium-warning: #facc15;
+  --premium-danger: #ef4444;
+  --premium-text: #ffffff;
+  --premium-muted: rgba(226, 241, 255, 0.74);
+  --premium-border: rgba(148, 197, 255, 0.22);
+  --premium-shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
+}
+
+body {
+  background:
+    radial-gradient(circle at 16% 6%, rgba(56, 189, 248, 0.22), transparent 28rem),
+    radial-gradient(circle at 92% 14%, rgba(96, 165, 250, 0.16), transparent 30rem),
+    linear-gradient(160deg, #071b2e 0%, #09213a 48%, #061421 100%);
+  color: var(--premium-text);
+}
+
+.app-shell {
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.035), transparent 24%),
+    linear-gradient(180deg, rgba(56, 189, 248, 0.045), transparent 42%);
+}
+
+.hero-section {
+  min-height: 62svh;
+  border-bottom: 1px solid var(--premium-border);
+  background:
+    linear-gradient(100deg, rgba(7, 27, 46, 0.98), rgba(7, 27, 46, 0.78)),
+    url('./assets/hero.png') center right / min(48vw, 560px) no-repeat;
+}
+
+.hero-copy {
+  padding: clamp(20px, 4vw, 34px);
+  border: 1px solid var(--premium-border);
+  border-radius: 28px;
+  background: linear-gradient(145deg, rgba(16, 44, 76, 0.72), rgba(8, 25, 42, 0.36));
+  box-shadow: var(--premium-shadow);
+  backdrop-filter: blur(18px);
+}
+
+.eyebrow {
+  color: var(--premium-primary);
+  letter-spacing: 0.16em;
+}
+
+h1,
+h2,
+h3,
+.panel-heading h2,
+.step-heading h2,
+.summary-card-heading h3 {
+  color: var(--premium-text);
+}
+
+h1 {
+  max-width: 680px;
+  font-size: clamp(2.35rem, 8vw, 5.2rem);
+  line-height: 0.98;
+}
+
+.lead,
+.step-guide,
+.field-hint,
+.summary-section p,
+.structured-block p,
+.clinical-pearl-disclosure p {
+  color: var(--premium-muted);
+}
+
+.panel,
+.input-panel,
+.step-card,
+.step-summary,
+.summary-section,
+.summary-card,
+.structured-block,
+.fuo-category-card,
+.reference-grid article {
+  border: 1px solid var(--premium-border);
+  border-radius: 22px;
+  background: linear-gradient(145deg, var(--premium-card), rgba(9, 28, 48, 0.62));
+  box-shadow: 0 18px 56px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(16px);
+}
+
+.workspace,
+.reference-grid,
+.medical-note {
+  background: transparent;
+}
+
+.primary-action,
+.next-step-button {
+  border: 1px solid rgba(56, 189, 248, 0.58);
+  background: linear-gradient(135deg, var(--premium-primary), var(--premium-secondary));
+  color: #041321;
+  box-shadow: 0 14px 36px rgba(56, 189, 248, 0.25);
+}
+
+.secondary-action,
+.reset-button,
+.back-step-button,
+.reset-nav-button {
+  border: 1px solid var(--premium-border);
+  background: rgba(16, 44, 76, 0.62);
+  color: var(--premium-text);
+  backdrop-filter: blur(12px);
+}
+
+.step-tabs {
+  gap: 10px;
+  border: 1px solid var(--premium-border);
+  border-radius: 24px;
+  padding: 10px;
+  background: rgba(4, 18, 32, 0.46);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.step-tabs button {
+  position: relative;
+  min-height: 52px;
+  border: 1px solid rgba(148, 197, 255, 0.14);
+  border-radius: 16px;
+  background: rgba(16, 44, 76, 0.5);
+  color: var(--premium-muted);
+}
+
+.step-tabs button::before {
+  content: counter(step-count);
+  counter-increment: step-count;
+  display: inline-grid;
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.14);
+  color: var(--premium-primary);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.step-tabs {
+  counter-reset: step-count -1;
+}
+
+.step-tabs button.active {
+  border-color: rgba(56, 189, 248, 0.74);
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(96, 165, 250, 0.12));
+  color: var(--premium-text);
+  box-shadow: 0 12px 34px rgba(56, 189, 248, 0.2);
+}
+
+.red-flag-banner,
+.step-summary.danger,
+.step-card.danger {
+  border-color: rgba(239, 68, 68, 0.54);
+  border-left: 5px solid var(--premium-danger);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(16, 44, 76, 0.82));
+  box-shadow: 0 18px 56px rgba(239, 68, 68, 0.16);
+}
+
+.red-flag-banner::before {
+  content: "!";
+  display: inline-grid;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 10px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.24);
+  color: #fecaca;
+  font-weight: 900;
+}
+
+.red-flag-banner .result-label,
+.step-summary.danger .result-label,
+.step-card.danger .result-label {
+  color: #fecaca;
+}
+
+.step2-category-panel {
+  border-color: rgba(56, 189, 248, 0.28);
+  background: linear-gradient(145deg, rgba(16, 44, 76, 0.6), rgba(7, 27, 46, 0.46));
+}
+
+.step2-category-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.category-toggle-card,
+.toggle-card,
+.organ-card,
+.rank-card {
+  border: 1px solid rgba(148, 197, 255, 0.18);
+  border-radius: 18px;
+  background: rgba(16, 44, 76, 0.48);
+  color: var(--premium-text);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+}
+
+.category-toggle-card.active,
+.toggle-card:has(input:checked) {
+  border-color: rgba(56, 189, 248, 0.7);
+  background: linear-gradient(145deg, rgba(56, 189, 248, 0.18), rgba(96, 165, 250, 0.1));
+}
+
+.category-toggle-icon {
+  color: var(--premium-primary);
+}
+
+.clinical-pearl-disclosure {
+  border-color: rgba(250, 204, 21, 0.48);
+  background: linear-gradient(145deg, rgba(250, 204, 21, 0.16), rgba(16, 44, 76, 0.76));
+}
+
+.clinical-pearl-disclosure summary {
+  min-height: 54px;
+}
+
+.clinical-pearl-disclosure .result-label,
+.clinical-pearl-disclosure small {
+  color: #fde68a;
+}
+
+.summary-section {
+  padding: clamp(18px, 4vw, 28px);
+}
+
+.summary-card-heading {
+  border-bottom: 1px solid var(--premium-border);
+  padding-bottom: 12px;
+}
+
+.step-bottom-nav {
+  position: sticky;
+  bottom: 12px;
+  z-index: 20;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid var(--premium-border);
+  border-radius: 22px;
+  padding: 10px;
+  background: rgba(7, 27, 46, 0.86);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(18px);
+}
+
+.step-bottom-nav button {
+  min-height: 52px;
+  border-radius: 16px;
+}
+
+@media (max-width: 900px) {
+  .hero-section {
+    background:
+      linear-gradient(180deg, rgba(7, 27, 46, 0.98), rgba(7, 27, 46, 0.82)),
+      url('./assets/hero.png') bottom right / 72vw no-repeat;
+  }
+
+  .hero-copy {
+    border-radius: 22px;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero-section {
+    padding: 24px 12px 28px;
+  }
+
+  .hero-copy {
+    padding: 18px;
+  }
+
+  .step2-category-grid,
+  .step-bottom-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .step-bottom-nav {
+    bottom: 8px;
+  }
+}
+
 .hero-section {
   display: grid;
   grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
@@ -1105,5 +1395,121 @@ a:focus-visible {
   }  .handoff div {
     grid-template-columns: 1fr;
     gap: 2px;
+  }
+}
+
+/* Premium final overrides: UI-only, no diagnostic logic changes. */
+.hero-section {
+  min-height: 62svh;
+  border-bottom-color: var(--premium-border);
+  background:
+    linear-gradient(100deg, rgba(7, 27, 46, 0.98), rgba(7, 27, 46, 0.78)),
+    url('./assets/hero.png') center right / min(48vw, 560px) no-repeat;
+}
+
+.hero-copy,
+.panel,
+.input-panel,
+.step-card,
+.step-summary,
+.summary-section,
+.summary-card,
+.structured-block,
+.fuo-category-card {
+  border-color: var(--premium-border);
+  background: linear-gradient(145deg, rgba(16, 44, 76, 0.76), rgba(9, 28, 48, 0.62));
+  box-shadow: 0 18px 56px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(16px);
+}
+
+.hero-copy {
+  border-radius: 28px;
+  padding: clamp(20px, 4vw, 34px);
+}
+
+.workspace,
+.reference-grid,
+.medical-note {
+  background: transparent;
+}
+
+.step-tabs {
+  counter-reset: step-count -1;
+  border: 1px solid var(--premium-border);
+  border-radius: 24px;
+  padding: 10px;
+  background: rgba(4, 18, 32, 0.46);
+}
+
+.step-tabs button {
+  border: 1px solid rgba(148, 197, 255, 0.14);
+  border-radius: 16px;
+  background: rgba(16, 44, 76, 0.5);
+  color: var(--premium-muted);
+}
+
+.step-tabs button::before {
+  content: counter(step-count);
+  counter-increment: step-count;
+  display: inline-grid;
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.14);
+  color: var(--premium-primary);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.step-tabs button.active {
+  border-color: rgba(56, 189, 248, 0.74);
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(96, 165, 250, 0.12));
+  color: #ffffff;
+}
+
+.red-flag-banner,
+.step-summary.danger,
+.step-card.danger {
+  border-color: rgba(239, 68, 68, 0.54);
+  border-left: 5px solid var(--premium-danger);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(16, 44, 76, 0.82));
+}
+
+.clinical-pearl-disclosure {
+  border-color: rgba(250, 204, 21, 0.48);
+  background: linear-gradient(145deg, rgba(250, 204, 21, 0.16), rgba(16, 44, 76, 0.76));
+}
+
+.step-bottom-nav {
+  position: sticky;
+  bottom: 12px;
+  z-index: 20;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid var(--premium-border);
+  border-radius: 22px;
+  padding: 10px;
+  background: rgba(7, 27, 46, 0.86);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(18px);
+}
+
+@media (max-width: 560px) {
+  .hero-section {
+    padding: 24px 12px 28px;
+    background:
+      linear-gradient(180deg, rgba(7, 27, 46, 0.98), rgba(7, 27, 46, 0.84)),
+      url('./assets/hero.png') bottom right / 72vw no-repeat;
+  }
+
+  .hero-copy {
+    border-radius: 22px;
+    padding: 18px;
+  }
+
+  .step2-category-grid,
+  .step-bottom-nav {
+    grid-template-columns: 1fr;
   }
 }

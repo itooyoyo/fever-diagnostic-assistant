@@ -802,8 +802,8 @@ function App() {
     <main className="app-shell">
       <section className="hero-section">
         <div className="hero-copy">
-          <p className="eyebrow">General Internal Medicine</p>
-          <h1>総合内科 発熱・CRP高値診断支援</h1>
+          <p className="eyebrow">Dr. Ito Medical Apps</p>
+          <h1>Fever &amp; CRP Clinical Navigator</h1>
           <p className="lead">
             発熱・炎症反応高値・原因不明発熱を総合内科的に順番に評価する診断支援ツール
           </p>
