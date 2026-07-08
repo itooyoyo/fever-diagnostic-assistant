@@ -2345,3 +2345,197 @@ select option {
     font-size: 0.86rem;
   }
 }
+
+/* Final readability rules: white clinical cards, dark disease cards */
+.guide-helper {
+  grid-template-columns: 96px minmax(0, 1fr);
+}
+
+.guide-helper img {
+  width: 96px;
+  height: 96px;
+  filter:
+    drop-shadow(0 0 2px rgba(255, 255, 255, 0.92))
+    drop-shadow(0 14px 28px rgba(56, 189, 248, 0.32));
+}
+
+.guide-bubble {
+  border-color: rgba(96, 165, 250, 0.95);
+  background: linear-gradient(145deg, #061a30, #102c4c);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+    0 0 28px rgba(56, 189, 248, 0.24),
+    0 18px 42px rgba(0, 0, 0, 0.36);
+}
+
+.guide-bubble::before {
+  border-color: rgba(96, 165, 250, 0.95);
+  background: #061a30;
+}
+
+.choice-group,
+.toggle-card,
+.category-toggle-card,
+.radio-card,
+.field-row,
+.unit-input,
+.summary-section,
+.result-stack > .step-card:not(.disease-card),
+.summary-section > .step-card:not(.disease-card),
+.diagnostic-summary-stack > .step-card:not(.disease-card),
+.test-recommendation-stack > .step-card:not(.disease-card),
+.step-summary:not(.danger),
+.structured-block {
+  border-color: #d7e2ee;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.result-stack > .step-card:not(.disease-card) h3,
+.result-stack > .step-card:not(.disease-card) h4,
+.result-stack > .step-card:not(.disease-card) p,
+.result-stack > .step-card:not(.disease-card) li,
+.summary-section,
+.summary-section h3,
+.summary-section h4,
+.summary-section p,
+.summary-section li,
+.diagnostic-summary-stack > .step-card:not(.disease-card) h3,
+.diagnostic-summary-stack > .step-card:not(.disease-card) h4,
+.diagnostic-summary-stack > .step-card:not(.disease-card) p,
+.diagnostic-summary-stack > .step-card:not(.disease-card) li,
+.test-recommendation-stack > .step-card:not(.disease-card) h3,
+.test-recommendation-stack > .step-card:not(.disease-card) h4,
+.test-recommendation-stack > .step-card:not(.disease-card) p,
+.test-recommendation-stack > .step-card:not(.disease-card) li,
+.structured-block h4,
+.structured-block p,
+.structured-block li {
+  color: #0f172a;
+}
+
+.choice-group legend,
+.choice-group p,
+.toggle-card,
+.toggle-card span,
+.category-toggle-card,
+.category-toggle-card strong,
+.radio-card,
+.field-row label,
+.unit-input small {
+  color: #0f172a;
+}
+
+.category-toggle-card small,
+.field-hint,
+.choice-group p {
+  color: #64748b;
+}
+
+select,
+input[type='number'],
+input[type='text'],
+input[type='search'],
+textarea {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+select::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: #64748b;
+}
+
+.red-flag-banner,
+.step-card.danger:not(.disease-card) {
+  border-color: #fecaca;
+  border-left: 5px solid #ef4444;
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
+}
+
+.red-flag-banner::before {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.red-flag-banner h3,
+.red-flag-banner p,
+.red-flag-banner .result-label,
+.step-card.danger:not(.disease-card) h3,
+.step-card.danger:not(.disease-card) h4,
+.step-card.danger:not(.disease-card) p,
+.step-card.danger:not(.disease-card) li {
+  color: #0f172a;
+}
+
+.red-flag-banner li,
+.step-card.danger:not(.disease-card) .result-label {
+  border: 1px solid #fecaca;
+  background: #fff1f2;
+  color: #b91c1c;
+}
+
+.disease-card,
+.ie-disease-card,
+.disease-card .disease-card-section,
+.disease-card .structured-block {
+  border-color: rgba(125, 211, 252, 0.28);
+  background: linear-gradient(145deg, rgba(7, 27, 46, 0.98), rgba(16, 44, 76, 0.9));
+  color: #ffffff;
+}
+
+.disease-card h3,
+.disease-card h4,
+.disease-card p,
+.disease-card li,
+.disease-card .structured-block h4,
+.disease-card .structured-block p,
+.disease-card .structured-block li {
+  color: #f8fbff;
+}
+
+.disease-card .red-flag-section {
+  border-color: rgba(239, 68, 68, 0.58);
+  border-left-color: #ef4444;
+  background: rgba(127, 29, 29, 0.34);
+}
+
+.clinical-pearl-disclosure {
+  border-color: #facc15;
+  background: #fffbeb;
+  color: #0f172a;
+}
+
+.clinical-pearl-disclosure strong,
+.clinical-pearl-disclosure p,
+.clinical-pearl-disclosure .result-label {
+  color: #0f172a;
+}
+
+.clinical-pearl-disclosure small {
+  color: #92400e;
+}
+
+.step-tabs button {
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .guide-helper {
+    grid-template-columns: 82px minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .guide-helper img {
+    width: 82px;
+    height: 82px;
+  }
+
+  .guide-bubble {
+    padding: 10px 12px;
+  }
+}
