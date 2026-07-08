@@ -2710,3 +2710,275 @@ textarea::placeholder {
     grid-template-columns: minmax(0, 1fr) 48px;
   }
 }
+
+/* iPhone final layout pass: compact, readable, no image checkerboard */
+.app-shell {
+  padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px));
+}
+
+.hero-section {
+  padding-top: 34px;
+  padding-bottom: 24px;
+}
+
+.guide-helper {
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.guide-helper img {
+  display: none;
+}
+
+.guide-helper::before {
+  content: "";
+  display: block;
+  width: 72px;
+  height: 76px;
+  border: 1px solid rgba(125, 211, 252, 0.62);
+  border-radius: 24px 24px 22px 22px;
+  background:
+    radial-gradient(circle at 50% 28%, #38bdf8 0 9px, transparent 10px),
+    linear-gradient(90deg, transparent 18px, rgba(191, 219, 254, 0.95) 19px 23px, transparent 24px),
+    linear-gradient(90deg, transparent 48px, rgba(191, 219, 254, 0.95) 49px 53px, transparent 54px),
+    linear-gradient(145deg, #cbd5e1 0 14%, #1e3a5f 15% 44%, #071b2e 45% 72%, #60a5fa 73% 100%);
+  box-shadow:
+    0 0 0 2px rgba(56, 189, 248, 0.12),
+    0 0 22px rgba(56, 189, 248, 0.34),
+    0 14px 28px rgba(0, 0, 0, 0.34);
+}
+
+.guide-bubble {
+  padding: 16px 20px;
+}
+
+.guide-bubble strong {
+  display: block;
+  margin-bottom: 3px;
+  color: #ffffff;
+  font-size: 1.08rem;
+  font-weight: 950;
+  letter-spacing: 0.02em;
+}
+
+.guide-bubble span {
+  color: #e8f7ff;
+  line-height: 1.62;
+}
+
+.step-bottom-nav {
+  bottom: max(8px, env(safe-area-inset-bottom, 0px));
+  padding: 7px;
+}
+
+.step-bottom-nav button {
+  min-height: 44px;
+  padding-block: 0;
+}
+
+.workspace {
+  padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+}
+
+.panel-heading h2,
+.input-toolbar h2,
+.step-heading h3,
+.step-heading p,
+.handoff dt,
+.handoff dd,
+.medical-note,
+.focus-heading h3,
+.focus-heading p {
+  color: #eaf6ff;
+}
+
+.summary-section .focus-heading h3,
+.summary-section .focus-heading p {
+  color: #0f172a;
+}
+
+.choice-group {
+  padding: 14px;
+}
+
+.choice-group legend {
+  float: left;
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 0;
+  color: #0f172a;
+  line-height: 1.45;
+}
+
+.choice-group legend + * {
+  clear: both;
+}
+
+.toggle-card,
+.category-toggle-card,
+.radio-card {
+  min-height: 46px;
+  align-items: center;
+  padding: 10px 12px;
+}
+
+.toggle-card input,
+.radio-card input {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.toggle-card span,
+.category-toggle-card strong,
+.category-toggle-card small,
+.radio-card span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  line-height: 1.45;
+}
+
+.field-row {
+  padding: 12px;
+}
+
+.field-row label {
+  line-height: 1.45;
+}
+
+.unit-input {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 46px;
+  align-items: center;
+}
+
+.unit-input input,
+select,
+input[type='number'],
+input[type='text'],
+input[type='search'],
+textarea {
+  min-height: 44px;
+}
+
+.unit-input small {
+  min-width: 42px;
+  align-self: center;
+  color: #334155;
+  text-align: left;
+}
+
+.step-tabs {
+  gap: 8px;
+  padding: 8px;
+}
+
+.step-tabs button {
+  min-width: 132px;
+  max-width: 168px;
+  padding: 8px 10px;
+  white-space: normal;
+  line-height: 1.28;
+}
+
+.restore-notice {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 12px;
+  border-color: rgba(56, 189, 248, 0.28);
+  background: rgba(7, 27, 46, 0.86);
+  color: #dbeafe;
+}
+
+@media (max-width: 768px) {
+  .app-shell {
+    padding-bottom: calc(148px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .hero-section {
+    padding: 18px 10px 14px;
+  }
+
+  .hero-copy {
+    padding: 14px;
+  }
+
+  .hero-copy h1,
+  h1 {
+    margin-bottom: 12px;
+    font-size: clamp(2.25rem, 10vw, 2.75rem);
+    line-height: 1.08;
+  }
+
+  .hero-copy .lead {
+    margin-bottom: 12px;
+    font-size: 0.94rem;
+    line-height: 1.55;
+  }
+
+  .guide-helper {
+    grid-template-columns: 66px minmax(0, 1fr);
+    gap: 9px;
+    margin-bottom: 12px;
+  }
+
+  .guide-helper::before {
+    width: 62px;
+    height: 66px;
+    border-radius: 20px;
+  }
+
+  .guide-bubble {
+    padding: 10px 12px;
+  }
+
+  .guide-bubble strong {
+    font-size: 0.96rem;
+  }
+
+  .guide-bubble span {
+    font-size: 0.84rem;
+    line-height: 1.5;
+  }
+
+  .hero-actions {
+    margin-top: 4px;
+  }
+
+  .input-panel {
+    padding: 12px 10px;
+  }
+
+  .choice-group,
+  .field-row,
+  .step-card,
+  .step-summary,
+  .summary-section {
+    padding: 12px;
+  }
+
+  .toggle-card,
+  .category-toggle-card,
+  .radio-card {
+    min-height: 44px;
+    padding: 9px 11px;
+  }
+
+  .step-tabs button {
+    min-width: 118px;
+    max-width: 150px;
+    font-size: 0.8rem;
+  }
+
+  .step-bottom-nav {
+    gap: 7px;
+    border-radius: 16px;
+    margin-top: 14px;
+  }
+
+  .step-bottom-nav button {
+    min-height: 44px;
+    font-size: 0.88rem;
+  }
+}
