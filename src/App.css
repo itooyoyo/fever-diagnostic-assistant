@@ -2982,3 +2982,367 @@ textarea {
     font-size: 0.88rem;
   }
 }
+
+/* Premium medical UX redesign: whitespace-first, compact mobile layout */
+.app-shell {
+  background:
+    radial-gradient(circle at 16% 0%, rgba(56, 189, 248, 0.16), transparent 24rem),
+    linear-gradient(180deg, #071b2e 0%, #061625 100%);
+  padding-bottom: calc(118px + env(safe-area-inset-bottom, 0px));
+}
+
+.hero-section {
+  min-height: auto;
+  padding: 26px clamp(14px, 4vw, 48px) 18px;
+}
+
+.hero-copy {
+  max-width: 820px;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.hero-copy .eyebrow {
+  margin-bottom: 6px;
+  color: #93c5fd;
+  font-size: 0.74rem;
+}
+
+.hero-copy h1 {
+  margin-bottom: 10px;
+  color: #ffffff;
+  font-size: clamp(2.35rem, 7vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.hero-copy .lead {
+  max-width: 640px;
+  margin-bottom: 14px;
+  color: #cbd5e1;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.guide-helper {
+  grid-template-columns: 78px minmax(0, 1fr);
+  max-width: 620px;
+  margin-bottom: 16px;
+}
+
+.guide-helper img {
+  display: none;
+}
+
+.guide-helper::before {
+  width: 78px;
+  height: 82px;
+  border: 1px solid rgba(96, 165, 250, 0.45);
+  border-radius: 28px 28px 24px 24px;
+  background:
+    radial-gradient(ellipse at 50% 26%, rgba(56, 189, 248, 0.95) 0 9px, transparent 10px),
+    radial-gradient(ellipse at 50% 36%, rgba(125, 211, 252, 0.9) 0 17px, transparent 18px),
+    linear-gradient(145deg, rgba(226, 232, 240, 0.95) 0 16%, rgba(37, 99, 235, 0.92) 17% 38%, rgba(15, 23, 42, 0.96) 39% 72%, rgba(96, 165, 250, 0.86) 73% 100%);
+  clip-path: polygon(50% 0, 84% 12%, 100% 42%, 88% 100%, 12% 100%, 0 42%, 16% 12%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.12) inset,
+    0 0 24px rgba(56, 189, 248, 0.28),
+    0 14px 28px rgba(0, 0, 0, 0.34);
+}
+
+.guide-bubble {
+  border-color: rgba(96, 165, 250, 0.5);
+  border-radius: 18px;
+  padding: 13px 17px;
+  background: rgba(10, 31, 54, 0.88);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.guide-bubble strong {
+  font-size: 1rem;
+}
+
+.guide-bubble span {
+  color: #e2e8f0;
+  line-height: 1.6;
+}
+
+.hero-actions {
+  gap: 10px;
+}
+
+.primary-action {
+  min-height: 44px;
+  border-radius: 999px;
+  padding-inline: 18px;
+}
+
+.secondary-action {
+  min-height: 44px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  border-radius: 999px;
+  background: transparent;
+  color: #e2e8f0;
+  box-shadow: none;
+}
+
+.input-guide-card {
+  display: none;
+}
+
+.step-tabs {
+  display: flex;
+  gap: 16px;
+  border: 0;
+  border-radius: 0;
+  padding: 8px 0 12px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.step-tabs button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  min-width: auto;
+  max-width: 148px;
+  min-height: 32px;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: #94a3b8;
+  box-shadow: none;
+  font-size: 0.88rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.step-tabs button::before {
+  width: 8px;
+  height: 8px;
+  margin-right: 7px;
+  background: #64748b;
+  color: transparent;
+  font-size: 0;
+}
+
+.step-tabs button.active {
+  border: 0;
+  background: transparent;
+  color: #38bdf8;
+  box-shadow: none;
+  transform: none;
+}
+
+.step-tabs button.active::before {
+  background: #38bdf8;
+  box-shadow: 0 0 0 5px rgba(56, 189, 248, 0.14);
+}
+
+.workspace {
+  padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+}
+
+.panel,
+.input-panel {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.panel-heading,
+.input-toolbar,
+.step-heading,
+.focus-heading {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.panel-heading h2,
+.input-toolbar h2,
+.step-heading h3,
+.focus-heading h3,
+.handoff dt,
+.handoff dd,
+.medical-note {
+  color: #f8fafc;
+}
+
+.step-heading p,
+.focus-heading p,
+.panel-heading p,
+.input-toolbar p {
+  color: #cbd5e1;
+}
+
+.choice-group,
+.field-row,
+.step-card:not(.disease-card),
+.summary-section,
+.structured-block {
+  border: 0;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: none;
+  color: #0f172a;
+}
+
+.choice-group,
+.field-row {
+  padding: 13px;
+}
+
+.choice-group legend,
+.field-row label {
+  color: #0f172a;
+}
+
+.toggle-card,
+.category-toggle-card,
+.radio-card,
+.todo-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.toggle-card:has(input:checked),
+.category-toggle-card.active,
+.radio-card:has(input:checked) {
+  border-color: #10b981;
+  background: #ecfdf5;
+}
+
+.summary-section,
+.result-stack,
+.diagnostic-summary-stack,
+.test-recommendation-stack {
+  gap: 14px;
+}
+
+.summary-section .focus-heading h3,
+.summary-section .focus-heading p,
+.step-card:not(.disease-card) h3,
+.step-card:not(.disease-card) h4,
+.step-card:not(.disease-card) p,
+.step-card:not(.disease-card) li,
+.structured-block h4,
+.structured-block p,
+.structured-block li {
+  color: #0f172a;
+}
+
+.step-card.danger:not(.disease-card),
+.red-flag-banner {
+  border: 0;
+  border-left: 4px solid #ef4444;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.red-flag-banner li,
+.step-card.danger:not(.disease-card) .result-label {
+  background: #fff1f2;
+  color: #b91c1c;
+}
+
+.clinical-pearl-disclosure {
+  border: 0;
+  border-left: 4px solid #facc15;
+  background: #fffbeb;
+  box-shadow: none;
+}
+
+.disease-card,
+.ie-disease-card,
+.disease-card .disease-card-section,
+.disease-card .structured-block {
+  border-color: rgba(96, 165, 250, 0.22);
+  background: linear-gradient(145deg, rgba(7, 27, 46, 0.98), rgba(15, 42, 70, 0.94));
+}
+
+.step-bottom-nav {
+  bottom: max(8px, env(safe-area-inset-bottom, 0px));
+  gap: 7px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 18px;
+  padding: 7px;
+  background: rgba(7, 27, 46, 0.92);
+}
+
+.step-bottom-nav button {
+  min-height: 42px;
+  border-radius: 13px;
+  padding-inline: 10px;
+}
+
+@media (max-width: 768px) {
+  .app-shell {
+    padding-bottom: calc(138px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .hero-section {
+    padding: 16px 12px 12px;
+  }
+
+  .hero-copy h1,
+  h1 {
+    font-size: clamp(2rem, 9vw, 2.55rem);
+    line-height: 1.1;
+  }
+
+  .hero-copy .lead {
+    font-size: 0.92rem;
+  }
+
+  .guide-helper {
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .guide-helper::before {
+    width: 68px;
+    height: 72px;
+  }
+
+  .guide-bubble {
+    padding: 10px 12px;
+  }
+
+  .step-tabs {
+    gap: 14px;
+    padding-block: 6px 10px;
+  }
+
+  .step-tabs button {
+    max-width: 132px;
+    min-height: 30px;
+    font-size: 0.8rem;
+  }
+
+  .choice-group,
+  .field-row,
+  .step-card:not(.disease-card),
+  .summary-section {
+    padding: 11px;
+  }
+
+  .toggle-card,
+  .category-toggle-card,
+  .radio-card {
+    min-height: 44px;
+    padding: 8px 10px;
+  }
+
+  .step-bottom-nav button {
+    min-height: 40px;
+  }
+}

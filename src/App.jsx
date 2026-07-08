@@ -816,7 +816,7 @@ function App() {
           </div>
           <div className="hero-actions" aria-label="主要操作">
             <a href="#checker" className="primary-action">
-              チェックを始める
+              診断開始
             </a>
             <a href="#warning-signs" className="secondary-action">
               緊急サインを見る
