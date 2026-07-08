@@ -2090,3 +2090,258 @@ select option {
     gap: 8px;
   }
 }
+
+/* Medical AI contrast pass */
+.hero-section {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(56, 189, 248, 0.26), transparent 26rem),
+    radial-gradient(circle at 88% 16%, rgba(16, 185, 129, 0.12), transparent 24rem),
+    linear-gradient(145deg, #04111f 0%, #071b2e 52%, #03101d 100%);
+}
+
+.hero-copy {
+  max-width: 920px;
+  border-color: rgba(56, 189, 248, 0.42);
+  background: linear-gradient(145deg, rgba(5, 18, 31, 0.96), rgba(11, 34, 59, 0.9));
+}
+
+.hero-copy .eyebrow {
+  color: #7dd3fc;
+}
+
+.hero-copy h1 {
+  color: #ffffff;
+  text-shadow: 0 0 28px rgba(56, 189, 248, 0.22);
+}
+
+.hero-copy .lead {
+  color: #d9efff;
+}
+
+.guide-helper {
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 16px;
+  max-width: min(100%, 660px);
+  margin-bottom: 22px;
+}
+
+.guide-helper img {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  image-rendering: auto;
+  filter: drop-shadow(0 12px 26px rgba(56, 189, 248, 0.3));
+}
+
+.guide-bubble {
+  gap: 5px;
+  border: 1px solid rgba(56, 189, 248, 0.78);
+  border-radius: 18px;
+  padding: 14px 16px;
+  background: linear-gradient(145deg, rgba(8, 27, 48, 0.98), rgba(12, 42, 72, 0.94));
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 0 24px rgba(56, 189, 248, 0.18),
+    0 18px 44px rgba(0, 0, 0, 0.34);
+}
+
+.guide-bubble::before {
+  left: -8px;
+  top: 32px;
+  border-color: rgba(56, 189, 248, 0.78);
+  background: rgba(8, 27, 48, 0.98);
+}
+
+.guide-bubble strong {
+  color: #ffffff;
+  font-size: 1.02rem;
+}
+
+.guide-bubble span {
+  color: #e0f7ff;
+  font-size: 0.94rem;
+}
+
+.step-tabs {
+  background: rgba(3, 13, 25, 0.72);
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.step-tabs button {
+  border-color: rgba(125, 211, 252, 0.22);
+  background: linear-gradient(180deg, #102c4c, #071b2e);
+  color: #e0f2fe;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
+}
+
+.step-tabs button.active {
+  border-color: rgba(56, 189, 248, 0.95);
+  background: linear-gradient(135deg, #38bdf8, #2563eb);
+  color: #ffffff;
+  box-shadow: 0 12px 30px rgba(56, 189, 248, 0.32);
+}
+
+.step-tabs button.active::before {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+.choice-group,
+.toggle-card,
+.category-toggle-card,
+.radio-card,
+.field-row,
+.unit-input,
+.todo-item {
+  border-color: #d6e2ee;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.choice-group legend,
+.toggle-card,
+.toggle-card span,
+.category-toggle-card,
+.category-toggle-card strong,
+.category-toggle-card small,
+.radio-card,
+.field-row label,
+.todo-item span {
+  color: #0f172a;
+}
+
+.choice-group p,
+.category-toggle-card small,
+.field-hint,
+.unit-input small {
+  color: #64748b;
+}
+
+.toggle-card:has(input:checked),
+.category-toggle-card.active,
+.radio-card:has(input:checked) {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #0f172a;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.14);
+}
+
+.toggle-card.danger-toggle:has(input:checked) {
+  border-color: #ef4444;
+  background: #fff1f2;
+}
+
+.toggle-card.danger-toggle:has(input:checked) span {
+  color: #b91c1c;
+}
+
+.input-guide-card {
+  border-color: rgba(56, 189, 248, 0.56);
+  background: linear-gradient(145deg, rgba(7, 27, 46, 0.98), rgba(16, 44, 76, 0.94));
+  box-shadow: 0 12px 34px rgba(56, 189, 248, 0.13);
+}
+
+.input-guide-disclosure summary::before {
+  content: "Guide";
+  display: inline-grid;
+  min-width: 46px;
+  min-height: 24px;
+  margin-right: 8px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.18);
+  color: #7dd3fc;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.input-guide-card p {
+  color: #e0f7ff;
+}
+
+.red-flag-banner {
+  border-color: rgba(239, 68, 68, 0.76);
+  background: linear-gradient(145deg, rgba(69, 10, 10, 0.8), rgba(7, 27, 46, 0.94));
+  box-shadow: 0 0 28px rgba(239, 68, 68, 0.18);
+}
+
+.red-flag-banner h3 {
+  color: #ffffff;
+}
+
+.red-flag-banner li {
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  background: #ffffff;
+  color: #b91c1c;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.step-card,
+.step-summary,
+.summary-section {
+  border-color: rgba(125, 211, 252, 0.28);
+  background: linear-gradient(145deg, rgba(8, 27, 48, 0.96), rgba(13, 42, 70, 0.9));
+}
+
+.structured-block,
+.disease-card-section {
+  border-color: rgba(125, 211, 252, 0.22);
+  background: rgba(3, 13, 25, 0.52);
+}
+
+.step-card h3,
+.step-card h4,
+.step-summary h3,
+.step-summary h4,
+.structured-block h4,
+.disease-card-section h4 {
+  color: #ffffff;
+}
+
+.step-card p,
+.step-card li,
+.step-summary p,
+.step-summary li,
+.structured-block p,
+.structured-block li,
+.disease-card-section li,
+.disease-card-details li,
+.clinical-pearl-disclosure p {
+  color: #eef8ff;
+}
+
+.clinical-pearl-disclosure,
+.disease-card-details {
+  border-color: rgba(250, 204, 21, 0.56);
+  background: linear-gradient(145deg, rgba(63, 45, 4, 0.58), rgba(8, 27, 48, 0.92));
+}
+
+@media (max-width: 768px) {
+  .guide-helper {
+    grid-template-columns: 76px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .guide-helper img {
+    width: 76px;
+    height: 76px;
+  }
+
+  .guide-bubble {
+    padding: 11px 12px;
+  }
+
+  .guide-bubble::before {
+    top: 28px;
+  }
+
+  .guide-bubble strong {
+    font-size: 0.96rem;
+  }
+
+  .guide-bubble span {
+    font-size: 0.86rem;
+  }
+}

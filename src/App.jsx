@@ -802,16 +802,16 @@ function App() {
     <main className="app-shell">
       <section className="hero-section">
         <div className="hero-copy">
-          <p className="eyebrow">Dr. Ito Medical Apps</p>
-          <h1>Fever &amp; CRP Clinical Navigator</h1>
+          <p className="eyebrow">DR. ITO MEDICAL APPS</p>
+          <h1>発熱・炎症反応診断支援</h1>
           <p className="lead">
-            発熱・炎症反応高値・原因不明発熱を総合内科的に順番に評価する診断支援ツール
+            発熱・CRP高値・原因不明発熱を総合内科的に評価します。
           </p>
           <div className="guide-helper" aria-label="診療ガイド">
             <img src={guideCharacter} alt="" />
             <div className="guide-bubble">
-              <strong>症状を順番に入力してください</strong>
-              <span>必要ならRed Flagも確認しましょう</span>
+              <strong>診療ガイド</strong>
+              <span>症状を順番に入力してください。必要ならRed Flagも確認しましょう。</span>
             </div>
           </div>
           <div className="hero-actions" aria-label="主要操作">
