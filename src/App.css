@@ -2539,3 +2539,174 @@ textarea::placeholder {
     padding: 10px 12px;
   }
 }
+
+/* Mobile text layout and guide integration polish */
+.guide-helper {
+  align-items: center;
+}
+
+.guide-helper img {
+  object-fit: contain;
+  background: transparent;
+  filter:
+    drop-shadow(0 0 1px rgba(255, 255, 255, 0.75))
+    drop-shadow(0 0 14px rgba(56, 189, 248, 0.36))
+    drop-shadow(0 18px 30px rgba(0, 0, 0, 0.42));
+}
+
+.guide-bubble {
+  padding: 16px 20px;
+}
+
+.guide-bubble strong {
+  display: block;
+  margin-bottom: 3px;
+  color: #ffffff;
+  font-size: 1.08rem;
+  font-weight: 950;
+  letter-spacing: 0.02em;
+}
+
+.guide-bubble span {
+  color: #e8f7ff;
+  line-height: 1.65;
+}
+
+.toggle-card,
+.category-toggle-card,
+.radio-card {
+  min-height: 56px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  line-height: 1.5;
+}
+
+.toggle-card span,
+.category-toggle-card strong,
+.category-toggle-card small,
+.radio-card span {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  line-height: 1.5;
+}
+
+.radio-card {
+  height: auto;
+}
+
+.field-row {
+  gap: 14px;
+}
+
+.field-row label,
+.choice-group legend {
+  font-weight: 850;
+}
+
+.unit-input {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 52px;
+  align-items: center;
+  gap: 8px;
+}
+
+.unit-input input {
+  min-height: 46px;
+}
+
+.unit-input small {
+  min-width: 44px;
+  text-align: left;
+  color: #334155;
+  font-weight: 800;
+}
+
+.choice-group,
+.field-row,
+.toggle-grid,
+.problem-grid,
+.symptom-grid {
+  gap: 12px;
+}
+
+.step-tabs {
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+}
+
+.step-tabs button {
+  flex: 0 0 auto;
+  min-width: 132px;
+  max-width: 180px;
+  height: auto;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  line-height: 1.25;
+}
+
+.step-tabs button.active {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .app-shell,
+  .hero-section,
+  .workspace,
+  .input-panel,
+  .panel {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  .guide-helper {
+    grid-template-columns: 84px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .guide-helper img {
+    width: 84px;
+    height: 84px;
+  }
+
+  .guide-bubble {
+    padding: 12px 14px;
+  }
+
+  .guide-bubble strong {
+    font-size: 1rem;
+  }
+
+  .guide-bubble span {
+    font-size: 0.86rem;
+    line-height: 1.55;
+  }
+
+  .problem-grid,
+  .toggle-grid,
+  .symptom-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .toggle-card,
+  .category-toggle-card,
+  .radio-card {
+    min-height: 52px;
+    padding: 12px 14px;
+  }
+
+  .step-tabs button {
+    min-width: 124px;
+    max-width: 154px;
+    font-size: 0.82rem;
+  }
+
+  .unit-input {
+    grid-template-columns: minmax(0, 1fr) 48px;
+  }
+}
