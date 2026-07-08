@@ -3346,3 +3346,198 @@ textarea {
     min-height: 40px;
   }
 }
+
+/* Final clinical premium polish */
+.hero-section {
+  padding-top: 20px;
+  padding-bottom: 12px;
+}
+
+.hero-copy h1 {
+  font-size: clamp(2.25rem, 6vw, 3.5rem);
+}
+
+.hero-copy .lead {
+  max-width: 560px;
+  margin-bottom: 10px;
+}
+
+.guide-helper {
+  grid-template-columns: 92px minmax(0, 1fr);
+  max-width: 600px;
+  margin-bottom: 12px;
+}
+
+.guide-helper::before {
+  display: none;
+}
+
+.guide-helper img {
+  display: block;
+  width: 90px;
+  height: 96px;
+  object-fit: contain;
+  background: transparent;
+  filter:
+    drop-shadow(0 0 16px rgba(56, 189, 248, 0.35))
+    drop-shadow(0 12px 24px rgba(0, 0, 0, 0.34));
+}
+
+.guide-bubble {
+  padding: 12px 16px;
+  background: rgba(7, 27, 46, 0.86);
+}
+
+.guide-bubble strong {
+  color: #ffffff;
+  font-size: 0.98rem;
+}
+
+.guide-bubble span {
+  color: #cbd5e1;
+}
+
+.step-heading {
+  position: static;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px 10px;
+  border: 0;
+  border-radius: 0;
+  padding: 8px 0 14px;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.step-badge {
+  min-width: auto;
+  min-height: 24px;
+  border-radius: 8px;
+  padding: 3px 8px;
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  font-size: 0.78rem;
+  line-height: 1;
+}
+
+.step-heading h3 {
+  color: #ffffff;
+  font-size: 1.05rem;
+  line-height: 1.3;
+}
+
+.step-heading p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.input-guide-card {
+  display: none;
+}
+
+.step-tabs {
+  gap: 14px;
+  padding: 4px 0 10px;
+}
+
+.step-tabs button {
+  max-width: 136px;
+  min-height: 26px;
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
+.step-tabs button.active {
+  color: #38bdf8;
+}
+
+.panel-heading h2,
+.input-toolbar h2,
+.focus-heading h3,
+.medical-note,
+.handoff dt,
+.handoff dd {
+  color: #ffffff;
+}
+
+.panel-heading p,
+.input-toolbar p,
+.focus-heading p,
+.handoff,
+.medical-note {
+  color: #cbd5e1;
+}
+
+.choice-group,
+.field-row,
+.step-card:not(.disease-card),
+.summary-section {
+  border-radius: 16px;
+}
+
+.step-bottom-nav {
+  padding: 6px;
+}
+
+.step-bottom-nav button {
+  min-height: 40px;
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding-top: 12px;
+    padding-bottom: 8px;
+  }
+
+  .hero-copy h1,
+  h1 {
+    font-size: clamp(2rem, 8.8vw, 2.45rem);
+    margin-bottom: 8px;
+  }
+
+  .hero-copy .lead {
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+
+  .guide-helper {
+    grid-template-columns: 78px minmax(0, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .guide-helper img {
+    width: 76px;
+    height: 84px;
+  }
+
+  .guide-bubble {
+    padding: 9px 11px;
+  }
+
+  .guide-bubble strong {
+    font-size: 0.92rem;
+  }
+
+  .guide-bubble span {
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+
+  .step-heading {
+    padding-bottom: 10px;
+  }
+
+  .step-heading h3 {
+    font-size: 1rem;
+  }
+
+  .step-heading p {
+    font-size: 0.86rem;
+  }
+}
