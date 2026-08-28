@@ -102,7 +102,7 @@ export function deriveQuestionRelevance(question, adaptiveContext) {
   const { activeDomains, candidateContext } = adaptiveContext
   if (activeDomains.includes(question.domain)) return RELEVANCE.HIGH
   if (candidateContext.hasCriticalContext && question.priorityClass === PRIORITY_CLASS.CRITICAL) return RELEVANCE.MEDIUM
-  if (activeDomains.includes('systemicNoFocus') && ['bloodstream', 'nonInfectious', 'exposure'].includes(question.domain)) return RELEVANCE.MEDIUM
+  if (activeDomains.includes('systemicNoFocus') && ['bloodstream', 'nonInfectious', 'exposure', 'internationalTravel'].includes(question.domain)) return RELEVANCE.MEDIUM
   if (activeDomains.includes('backSpine') && ['bloodstream', 'boneJoint'].includes(question.domain)) return RELEVANCE.MEDIUM
   if (activeDomains.includes('neurologic') && question.domain === 'neck') return RELEVANCE.MEDIUM
   return RELEVANCE.NONE

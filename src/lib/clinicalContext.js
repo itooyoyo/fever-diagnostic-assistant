@@ -55,6 +55,17 @@ const BOOLEAN_FINDING_MAP = {
   autonomicSymptoms: ['physicalFindings.autonomicSymptoms'],
   tremor: ['physicalFindings.tremor'],
   muscleRigidity: ['physicalFindings.muscleRigidity'],
+  malaise: ['symptomDomains.constitutional.malaise'],
+  myalgiaArthralgia: ['symptomDomains.constitutional.myalgiaArthralgia'],
+  prominentArthralgia: ['symptomDomains.constitutional.prominentArthralgia'],
+  leukopenia: ['hematology.leukopenia'],
+
+  travelMalariaRiskArea: ['exposures.internationalTravel.regionClassifications.malariaRiskArea'],
+  travelDengueRiskArea: ['exposures.internationalTravel.regionClassifications.dengueRiskArea'],
+  travelChikungunyaRiskArea: ['exposures.internationalTravel.regionClassifications.chikungunyaRiskArea'],
+  travelTropicalSubtropical: ['exposures.internationalTravel.regionClassifications.tropicalSubtropical'],
+  malariaInitialSmearNegative: ['diagnosticTests.malaria.initialSmearNegative'],
+  dengueEarlyIgmNegative: ['diagnosticTests.dengue.earlyIgmNegative'],
 
   respCough: ['symptomDomains.respiratory.cough'],
   respSputum: ['symptomDomains.respiratory.sputum'],
@@ -233,6 +244,7 @@ const FUTURE_EXPOSURE_FINDINGS = [
   'foodExposure',
   'waterExposure',
   'sexualExposure',
+  'healthcareExposure',
 ]
 
 export function normalizeClinicalContext(rawAnswers = {}, options = {}) {
@@ -329,6 +341,12 @@ function createEmptyContext(rawAnswers) {
     electrolytes: {},
     symptomDomains: {},
     exposures: {
+      domesticOutdoor: createExposureDomain('domesticOutdoor', ['outdoorExposure', 'tickExposure', 'knownTickBite', 'eschar']),
+      internationalTravel: createInternationalTravelContext(rawAnswers),
+      animal: createExposureDomain('animal', ['animalExposure']),
+      food: createExposureDomain('food', ['foodExposure']),
+      water: createExposureDomain('water', ['waterExposure']),
+      sexual: createExposureDomain('sexual', ['sexualExposure']),
       healthcare: createFinding(FINDING_STATES.UNKNOWN, { sourceField: 'recentHospitalization', sourceStep: 'step2' }),
     },
     hostFactors: {},
@@ -339,6 +357,7 @@ function createEmptyContext(rawAnswers) {
       infectionAbsent: createFinding(FINDING_STATES.NOT_ASSESSED, { legacyRule: 'never-derived-from-fever-or-crp-alone' }),
     },
     nonInfectiousPatterns: {},
+    diagnosticTests: {},
     dataQuality: {
       missingImportantData: [],
       conflicts: [],
@@ -350,9 +369,77 @@ function createEmptyContext(rawAnswers) {
         'known tick bite absent does not exclude tick-borne disease',
         'eschar absent does not exclude tick-borne disease',
         'rash absent does not exclude tick-borne disease',
+        'unknown international travel is not converted to no travel',
+        'free-text country names are not used directly in medical rules',
       ],
     },
   }
+}
+
+function createExposureDomain(domain, sourceFields) {
+  return {
+    state: createFinding(FINDING_STATES.NOT_ASSESSED, { sourceField: domain, sourceStep: 'future' }),
+    sourceFields,
+  }
+}
+
+function createInternationalTravelContext(rawAnswers) {
+  const hasTravelField = Object.hasOwn(rawAnswers, 'travelExposure')
+  const hasText = typeof rawAnswers.travelCountryText === 'string' && rawAnswers.travelCountryText.trim().length > 0
+  const state = rawAnswers.travelExposure === true || hasText
+    ? FINDING_STATES.PRESENT
+    : hasTravelField
+      ? FINDING_STATES.UNKNOWN
+      : FINDING_STATES.NOT_ASSESSED
+  const returnDate = parseDateOnly(rawAnswers.travelReturnDate)
+  const referenceDate = parseDateOnly(rawAnswers.referenceDate) || new Date()
+  const daysSinceReturn = returnDate ? Math.max(0, daysBetween(returnDate, referenceDate)) : null
+
+  return {
+    state: createFinding(state, { sourceField: 'travelExposure', sourceStep: 'future', rawValue: rawAnswers.travelExposure ?? rawAnswers.travelCountryText ?? null }),
+    countryText: {
+      value: hasText ? rawAnswers.travelCountryText.trim() : '',
+      state: hasText ? FINDING_STATES.PRESENT : FINDING_STATES.NOT_ASSESSED,
+      ruleUse: 'display-only; never compare raw country text in medical rules',
+    },
+    regionClassifications: {
+      malariaRiskArea: createFinding(FINDING_STATES.NOT_ASSESSED, { sourceField: 'travelMalariaRiskArea', sourceStep: 'future' }),
+      dengueRiskArea: createFinding(FINDING_STATES.NOT_ASSESSED, { sourceField: 'travelDengueRiskArea', sourceStep: 'future' }),
+      chikungunyaRiskArea: createFinding(FINDING_STATES.NOT_ASSESSED, { sourceField: 'travelChikungunyaRiskArea', sourceStep: 'future' }),
+      tropicalSubtropical: createFinding(FINDING_STATES.NOT_ASSESSED, { sourceField: 'travelTropicalSubtropical', sourceStep: 'future' }),
+    },
+    departureDate: createDateValue(rawAnswers.travelDepartureDate, 'travelDepartureDate'),
+    returnDate: createDateValue(rawAnswers.travelReturnDate, 'travelReturnDate'),
+    daysSinceReturn: createMeasurement(daysSinceReturn, daysSinceReturn === null ? FINDING_STATES.UNKNOWN : FINDING_STATES.PRESENT, {
+      sourceField: 'travelReturnDate',
+      sourceStep: 'future',
+      unit: 'days',
+      rawValue: rawAnswers.travelReturnDate ?? null,
+    }),
+    ruralOrUrban: rawAnswers.travelRuralOrUrban || 'unknown',
+    purpose: rawAnswers.travelPurpose || 'unknown',
+    prophylaxis: rawAnswers.travelProphylaxis || 'unknown',
+  }
+}
+
+function createDateValue(value, sourceField) {
+  return {
+    value: typeof value === 'string' && value.length > 0 ? value : null,
+    state: typeof value === 'string' && value.length > 0 ? FINDING_STATES.PRESENT : FINDING_STATES.UNKNOWN,
+    sourceField,
+    sourceStep: 'future',
+  }
+}
+
+function parseDateOnly(value) {
+  if (typeof value !== 'string' || value.length === 0) return null
+  const date = new Date(`${value}T00:00:00`)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+function daysBetween(start, end) {
+  const msPerDay = 24 * 60 * 60 * 1000
+  return Math.floor((Date.UTC(end.getFullYear(), end.getMonth(), end.getDate()) - Date.UTC(start.getFullYear(), start.getMonth(), start.getDate())) / msPerDay)
 }
 
 function normalizeLegacyBoolean(rawAnswers, sourceField, explicitAbsences) {

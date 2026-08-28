@@ -72,6 +72,11 @@ export const ADAPTIVE_QUESTION_REGISTRY = [
   q('q_sys_pmr_gca', '肩・大腿痛または側頭動脈圧痛がありますか？', ADAPTIVE_DOMAINS.NON_INFECTIOUS, 'symptomDomains.constitutional.shoulderThighPain', ['pmr', 'pmr_gca'], PRIORITY_CLASS.DISCRIMINATION_HIGH),
   q('q_sys_thrombosis', '下肢腫脹、胸痛、呼吸困難がありますか？', ADAPTIVE_DOMAINS.NON_INFECTIOUS, 'physicalFindings.legSwelling', ['dvt_pe'], PRIORITY_CLASS.MODERATE),
 
+  q('q_travel_recent', '最近、海外への渡航・滞在がありましたか？', ADAPTIVE_DOMAINS.INTERNATIONAL_TRAVEL, 'exposures.internationalTravel.state', ['malaria', 'dengue', 'chikungunya'], PRIORITY_CLASS.DISCRIMINATION_HIGH, 'travel-screen', CANDIDATE_STATUS.FUTURE_PHASE),
+  q('q_travel_region_timing', 'どの国・地域に、いつ滞在しましたか？', ADAPTIVE_DOMAINS.INTERNATIONAL_TRAVEL, 'exposures.internationalTravel.regionClassifications.tropicalSubtropical', ['malaria', 'dengue', 'chikungunya'], PRIORITY_CLASS.DISCRIMINATION_HIGH, 'region-classification-not-raw-country', CANDIDATE_STATUS.FUTURE_PHASE),
+  q('q_travel_chills_course', '悪寒戦慄や発熱経過にマラリアを疑う要素がありますか？', ADAPTIVE_DOMAINS.INTERNATIONAL_TRAVEL, 'infectionPatterns.chills', ['malaria'], PRIORITY_CLASS.CRITICAL, 'malaria-testing-required', CANDIDATE_STATUS.FUTURE_PHASE),
+  q('q_travel_headache_rash_joint', '頭痛、発疹、強い関節痛がありますか？', ADAPTIVE_DOMAINS.INTERNATIONAL_TRAVEL, 'symptomDomains.neurologic.headache', ['dengue', 'chikungunya'], PRIORITY_CLASS.DISCRIMINATION_HIGH, null, CANDIDATE_STATUS.FUTURE_PHASE),
+
   q('q_exp_outdoor', '最近、山林・草むら・畑などで屋外活動がありましたか？', ADAPTIVE_DOMAINS.EXPOSURE, 'exposures.outdoorExposure', ['sfts', 'japanese_spotted_fever', 'scrub_typhus'], PRIORITY_CLASS.MODERATE, 'tick-screen', CANDIDATE_STATUS.FUTURE_PHASE),
   q('q_exp_tick_bite', 'マダニに刺された可能性がありますか？', ADAPTIVE_DOMAINS.EXPOSURE, 'exposures.knownTickBite', ['sfts', 'japanese_spotted_fever', 'scrub_typhus'], PRIORITY_CLASS.LOW, 'tick-screen', CANDIDATE_STATUS.FUTURE_PHASE),
   q('q_exp_eschar', '刺し口や黒い痂皮がありますか？', ADAPTIVE_DOMAINS.EXPOSURE, 'exposures.eschar', ['japanese_spotted_fever', 'scrub_typhus'], PRIORITY_CLASS.LOW, 'tick-screen', CANDIDATE_STATUS.FUTURE_PHASE),

@@ -13,6 +13,7 @@ export const ADAPTIVE_DOMAINS = Object.freeze({
   SYSTEMIC_NO_FOCUS: 'systemicNoFocus',
   NON_INFECTIOUS: 'nonInfectious',
   EXPOSURE: 'exposure',
+  INTERNATIONAL_TRAVEL: 'internationalTravel',
 })
 
 const DOMAIN_SIGNALS = {
@@ -97,6 +98,12 @@ const DOMAIN_SIGNALS = {
     'exposures.tickExposure',
     'exposures.healthcare',
     'hostFactors.immunosuppression',
+  ],
+  [ADAPTIVE_DOMAINS.INTERNATIONAL_TRAVEL]: [
+    'exposures.internationalTravel.state',
+    'exposures.internationalTravel.regionClassifications.malariaRiskArea',
+    'exposures.internationalTravel.regionClassifications.dengueRiskArea',
+    'exposures.internationalTravel.regionClassifications.chikungunyaRiskArea',
   ],
 }
 

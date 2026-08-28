@@ -18,6 +18,7 @@ import {
   DUPLICATE_CANDIDATE_ID_MAP,
   RED_FLAG_DEPENDENCY_MAP,
   TICK_SAFETY_INVARIANTS,
+  TRAVEL_INFECTION_SAFETY_INVARIANTS,
   getActiveCandidates,
   getCandidateById,
   getFutureCandidates,
@@ -193,7 +194,20 @@ function runNormalizationTests() {
     assert(context.rawAnswers.temperature === '38.5', 'raw temperature should be retained')
   })
 
-  add('10 duplicate candidate ID mapping is canonical', () => {
+  add('10 travel raw country text is display-only', () => {
+    const context = normalizeClinicalContext({ ...baseForm, travelExposure: true, travelCountryText: 'Ghana', travelReturnDate: '2026-08-20', referenceDate: '2026-08-28' })
+    assert(context.exposures.internationalTravel.state.state === FINDING_STATES.PRESENT, 'travel state should be present')
+    assert(context.exposures.internationalTravel.countryText.ruleUse.includes('never compare'), 'countryText should not be used directly in rules')
+    assert(context.exposures.internationalTravel.daysSinceReturn.value === 8, 'days since return should be calculated')
+  })
+
+  add('11 travel unknown is not no travel', () => {
+    const context = normalizeClinicalContext({ ...baseForm })
+    assert(context.exposures.internationalTravel.state.state === FINDING_STATES.NOT_ASSESSED, 'unasked travel should remain not_assessed')
+    assert(context.exposures.internationalTravel.daysSinceReturn.measurementState === FINDING_STATES.UNKNOWN, 'unknown return date should not become irrelevant')
+  })
+
+  add('12 duplicate candidate ID mapping is canonical', () => {
     assert(DUPLICATE_CANDIDATE_ID_MAP.PMR === 'pmr', 'PMR should map to pmr')
     assert(DUPLICATE_CANDIDATE_ID_MAP['化膿性脊椎炎'] === 'vertebral_osteomyelitis', 'vertebral osteomyelitis should be canonical')
     assert(getCandidateById('vertebral_osteomyelitis')?.displayName === '化膿性脊椎炎', 'canonical candidate should exist')
@@ -281,10 +295,13 @@ function runRegistryTests() {
   })
   add('02 registry has tick skeleton candidates only in future phase', () => {
     const futureIds = getFutureCandidates().map((item) => item.id).sort()
-    assert(JSON.stringify(futureIds) === JSON.stringify(['japanese_spotted_fever', 'scrub_typhus', 'sfts']), `unexpected future candidates: ${futureIds.join(',')}`)
+    assert(JSON.stringify(futureIds) === JSON.stringify(['chikungunya', 'dengue', 'japanese_spotted_fever', 'malaria', 'scrub_typhus', 'sfts']), `unexpected future candidates: ${futureIds.join(',')}`)
   })
   add('03 tick safety invariants are present', () => {
     assert(TICK_SAFETY_INVARIANTS.length === 6, 'expected six tick safety invariants')
+  })
+  add('03b travel infection safety invariants are present', () => {
+    assert(TRAVEL_INFECTION_SAFETY_INVARIANTS.length >= 10, 'expected travel infection safety invariants')
   })
   add('04 red flag dependency map covers required diseases', () => {
     const names = RED_FLAG_DEPENDENCY_MAP.map((item) => item.name)

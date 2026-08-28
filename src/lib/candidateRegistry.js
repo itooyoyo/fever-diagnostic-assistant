@@ -13,6 +13,12 @@ export const CANDIDATE_TIERS = Object.freeze({
 const sharedSafetyNotes = {
   fever: '発熱がないことだけで感染症候補から除外しない。',
   inflammation: 'CRP低値またはWBC正常だけで重要感染症を除外しない。',
+  travel:
+    '渡航地域と帰国時期を確認せず海外渡航なしと推定しない。unknownをnegativeへ変換しない。',
+  malaria:
+    '周期熱がない、現在無熱、CRP低値、WBC正常、初回血液塗抹陰性、渡航地域未確認、帰国時期未確認だけでマラリアを除外しない。',
+  dengue:
+    '発疹なし、血小板正常、現在無熱、初期IgM陰性、典型症状不足だけでデングを除外しない。検査時期を無視した陰性判定を避ける。',
   tick:
     '刺し口は不明瞭なことがあり、無熱でも除外しない。低Na血症・血小板減少を伴う場合はマダニ媒介感染症も再考する。',
 }
@@ -302,6 +308,78 @@ export const CANDIDATE_REGISTRY = [
     legacyDependencies: ['assessInfectionLikelihood', 'assessNoLocalizingFocus', 'assessNonInfectiousFocus'],
   }),
 
+  candidate('malaria', 'マラリア', 'travelInfection', CANDIDATE_TIERS.CRITICAL, {
+    status: CANDIDATE_STATUS.FUTURE_PHASE,
+    majorCandidate: true,
+    supportingFindings: [
+      'exposures.internationalTravel.state',
+      'exposures.internationalTravel.regionClassifications.malariaRiskArea',
+      'exposures.internationalTravel.daysSinceReturn',
+      'vitals.fever',
+      'infectionPatterns.chills',
+      'symptomDomains.neurologic.headache',
+      'symptomDomains.constitutional.malaise',
+      'hematology.thrombocytopenia',
+    ],
+    weakContradictions: ['典型的周期熱なし', '現在無熱', 'CRP低値', 'WBC正常', '初回血液塗抹陰性'],
+    doNotExclude: ['周期熱なし', '現在無熱', 'CRP低値', 'WBC正常', '初回血液塗抹陰性', '渡航地域未確認', '帰国時期未確認'],
+    suggestedTests: ['厚層血液塗抹', '薄層血液塗抹', '迅速診断検査', '必要に応じて12-24時間ごと計3セットまで塗抹再検'],
+    safetyNotes: [sharedSafetyNotes.travel, sharedSafetyNotes.malaria],
+    medicalMetadata: {
+      presentationCategory: '渡航関連感染症',
+      evidenceSources: ['CDC malaria evaluation and diagnosis 2026-06-12', 'WHO malaria fact sheet 2025-12-04', 'WHO malaria diagnostic testing'],
+      repeatSmear: { intervalHours: '12-24', maxSets: 3, source: 'CDC' },
+      testingRequiredBeforeExtendedQuestioning: ['malariaRiskArea with fever/chills', 'severe malaria concern', 'no immediate onsite malaria testing'],
+    },
+    legacyDependencies: [],
+  }),
+  candidate('dengue', 'デング', 'travelInfection', CANDIDATE_TIERS.HIGH, {
+    status: CANDIDATE_STATUS.FUTURE_PHASE,
+    supportingFindings: [
+      'exposures.internationalTravel.state',
+      'exposures.internationalTravel.regionClassifications.dengueRiskArea',
+      'vitals.fever',
+      'symptomDomains.neurologic.headache',
+      'physicalFindings.rash',
+      'hematology.thrombocytopenia',
+      'hematology.leukopenia',
+      'symptomDomains.constitutional.myalgiaArthralgia',
+    ],
+    weakContradictions: ['発疹なし', '血小板正常', '現在無熱', '初期IgM陰性', '典型症状不足'],
+    doNotExclude: ['発疹なし', '血小板正常', '現在無熱', '初期IgM陰性', '典型症状不足'],
+    suggestedTests: ['発症0-7日はNAATまたはNS1抗原とIgM', '発症7日超はIgMを中心に検討', '検査時期を確認'],
+    safetyNotes: [sharedSafetyNotes.travel, sharedSafetyNotes.dengue, 'マラリア評価が必要な文脈では、デング候補があってもマラリア評価を隠さない。'],
+    medicalMetadata: {
+      presentationCategory: '渡航関連感染症',
+      evidenceSources: ['CDC dengue clinical testing guidance 2025', 'CDC Yellow Book dengue 2025', 'JIHS/NIID dengue laboratory diagnosis'],
+      testTiming: {
+        acuteDays: '0-7',
+        acuteTests: ['NAAT + IgM', 'NS1 antigen + IgM'],
+        convalescentAfterDay: 7,
+        convalescentTests: ['IgM'],
+      },
+    },
+    legacyDependencies: [],
+  }),
+  candidate('chikungunya', 'チクングニア', 'travelInfection', CANDIDATE_TIERS.MODERATE, {
+    status: CANDIDATE_STATUS.FUTURE_PHASE,
+    supportingFindings: [
+      'exposures.internationalTravel.state',
+      'exposures.internationalTravel.regionClassifications.chikungunyaRiskArea',
+      'vitals.fever',
+      'symptomDomains.constitutional.prominentArthralgia',
+      'physicalFindings.rash',
+    ],
+    doNotExclude: ['典型症状不足', '発疹なし'],
+    suggestedTests: ['渡航地域と発症時期の確認', 'デングなど類似疾患の評価', '必要に応じて公的検査相談'],
+    safetyNotes: [sharedSafetyNotes.travel, 'Phase Cでactive rankingへ接続する前に医学レビューを行う。'],
+    medicalMetadata: {
+      presentationCategory: '渡航関連感染症',
+      evidenceSources: ['CDC chikungunya clinical signs 2024', 'CDC Yellow Book chikungunya 2026'],
+    },
+    legacyDependencies: [],
+  }),
+
   candidate('sfts', 'SFTS', 'tickBorne', CANDIDATE_TIERS.CRITICAL, {
     status: CANDIDATE_STATUS.FUTURE_PHASE,
     majorCandidate: true,
@@ -346,6 +424,20 @@ export const RED_FLAG_DEPENDENCY_MAP = [
   redFlag('血管内リンパ腫', ['unknownLdhHigh', 'nonInfLdhHigh', 'unknownAnemia', 'unknownThrombocytopenia'], ['physicalFindings.ldhHigh', 'hematology.anemia', 'hematology.thrombocytopenia'], ['intravascular_lymphoma'], ['可溶性IL-2R', 'PET-CT', 'ランダム皮膚生検'], ['血液内科相談を検討'], 'RedFlagBanner/buildRedFlags'),
 ]
 
+export const TRAVEL_INFECTION_SAFETY_INVARIANTS = [
+  'free-text country names are not used directly in medical rules',
+  'unknown international travel is not converted to no travel',
+  'unknown return date is not converted to irrelevant travel',
+  'malaria is not excluded by absent periodic fever',
+  'malaria is not excluded by afebrile status at the current visit',
+  'malaria is not excluded by low CRP or normal WBC alone',
+  'malaria is not excluded by a single negative initial blood smear when clinical suspicion is high',
+  'dengue is not excluded by absent rash',
+  'dengue is not excluded by normal platelets alone',
+  'dengue is not excluded by early negative IgM',
+  'dengue consideration does not hide malaria evaluation when malaria testing is required',
+]
+
 export const TICK_SAFETY_INVARIANTS = [
   'fever absent does not exclude SFTS, Japanese spotted fever, or scrub typhus',
   'knownTickBite absent does not exclude tick-borne disease',
@@ -383,6 +475,7 @@ function candidate(id, displayName, category, tier, config = {}) {
     examinationHints: config.examinationHints || [],
     suggestedTests: config.suggestedTests || [],
     safetyNotes: config.safetyNotes || [],
+    medicalMetadata: config.medicalMetadata || null,
     legacyDependencies: config.legacyDependencies || [],
   }
 }
