@@ -266,7 +266,14 @@ export function normalizeClinicalContext(rawAnswers = {}, options = {}) {
   }
 
   for (const key of FUTURE_EXPOSURE_FINDINGS) {
-    if (!context.exposures[key]) {
+    if (context.exposures[key]) continue
+    if (rawAnswers[key] === true) {
+      context.exposures[key] = createFinding(FINDING_STATES.PRESENT, { sourceField: key, sourceStep: 'future', rawValue: true })
+    } else if (explicitAbsences.has(key)) {
+      context.exposures[key] = createFinding(FINDING_STATES.ABSENT, { sourceField: key, sourceStep: 'future', rawValue: false })
+    } else if (Object.hasOwn(rawAnswers, key)) {
+      context.exposures[key] = createFinding(FINDING_STATES.UNKNOWN, { sourceField: key, sourceStep: 'future', rawValue: rawAnswers[key], legacyRule: 'future-field-provided-without-explicit-absence' })
+    } else {
       context.exposures[key] = createFinding(FINDING_STATES.NOT_ASSESSED, { sourceField: key, sourceStep: 'future' })
     }
   }
@@ -489,6 +496,7 @@ function inferSourceStep(sourceField) {
   if (sourceField.startsWith('reeval')) return 'step6'
   return 'legacy'
 }
+
 
 
 

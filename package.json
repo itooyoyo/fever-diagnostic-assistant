@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "node scripts/fever-phase-a-quality-check.mjs"
+    "test": "node scripts/fever-phase-b-quality-check.mjs"
   },
   "dependencies": {
     "react": "^19.2.7",
