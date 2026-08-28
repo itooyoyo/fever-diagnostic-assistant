@@ -383,13 +383,22 @@ function createExposureDomain(domain, sourceFields) {
   }
 }
 
+function normalizeExplicitFindingState(value, fallbackState = FINDING_STATES.UNKNOWN) {
+  if (value === true || value === FINDING_STATES.PRESENT) return FINDING_STATES.PRESENT
+  if (value === FINDING_STATES.ABSENT) return FINDING_STATES.ABSENT
+  if (value === FINDING_STATES.UNKNOWN) return FINDING_STATES.UNKNOWN
+  if (value === FINDING_STATES.NOT_ASSESSED) return FINDING_STATES.NOT_ASSESSED
+  if (value === FINDING_STATES.INDETERMINATE) return FINDING_STATES.INDETERMINATE
+  return fallbackState
+}
+
 function createInternationalTravelContext(rawAnswers) {
   const hasTravelField = Object.hasOwn(rawAnswers, 'travelExposure')
   const hasText = typeof rawAnswers.travelCountryText === 'string' && rawAnswers.travelCountryText.trim().length > 0
-  const state = rawAnswers.travelExposure === true || hasText
+  const state = hasText
     ? FINDING_STATES.PRESENT
     : hasTravelField
-      ? FINDING_STATES.UNKNOWN
+      ? normalizeExplicitFindingState(rawAnswers.travelExposure)
       : FINDING_STATES.NOT_ASSESSED
   const returnDate = parseDateOnly(rawAnswers.travelReturnDate)
   const referenceDate = parseDateOnly(rawAnswers.referenceDate) || new Date()
