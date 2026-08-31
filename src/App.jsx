@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import guideCharacter from './assets/guide-character.png'
 import './App.css'
-import { buildAdaptiveQuestionShadow } from './lib/feverAdaptiveEngine.js'
-import { normalizeClinicalContext } from './lib/clinicalContext.js'
+import { buildProgressiveNarrowingShadow } from './lib/progressiveNarrowingEngine.js'
 import {
   assessEmergencySigns,
   assessInfectionLikelihood,
@@ -2438,13 +2437,15 @@ function AdaptiveProductionApp() {
       }),
     [form, step0Result, step1Result, respiratoryResult, urinaryResult, abdominalResult, skinResult, boneJointResult, centralNervousResult, bloodstreamResult, backPainResult, neckPainResult, noLocalizingResult, nonInfectiousResult, testRecommendationResult],
   )
-  const activeShadow = useMemo(() => buildAdaptiveQuestionShadow(form, { allowFuturePhaseQuestions: true }), [form])
-  const normalizedContext = useMemo(() => normalizeClinicalContext(form), [form])
-  const redFlagItems = diagnosticSummaryResult.mustNotMiss.slice(0, 7)
-  const primary = diagnosticSummaryResult.ranking.slice(0, 3)
-  const importantCompeting = diagnosticSummaryResult.ranking.filter((item) => item.isCritical && !primary.some((primaryItem) => primaryItem.name === item.name)).slice(0, 5)
-  const supporting = diagnosticSummaryResult.ranking.filter((item) => !item.isCritical && !primary.some((primaryItem) => primaryItem.name === item.name)).slice(0, 6)
-  const otherCount = Math.max(0, diagnosticSummaryResult.ranking.length - primary.length - importantCompeting.length - supporting.length)
+  const explicitAbsences = useMemo(() => getExplicitAbsences(form), [form])
+  const progressiveResult = useMemo(() => buildProgressiveNarrowingShadow(form, { allowFuturePhaseQuestions: true, explicitAbsences }), [form, explicitAbsences])
+  const normalizedContext = progressiveResult.normalizedClinicalContext
+  const redFlagItems = progressiveResult.presentation.importantCompeting.slice(0, 7)
+  const primary = progressiveResult.presentation.primary.slice(0, 5).map(progressiveCandidateToCard)
+  const importantCompeting = progressiveResult.presentation.importantCompeting.slice(0, 8).map(progressiveCandidateToCard)
+  const supporting = progressiveResult.presentation.supporting.slice(0, 7).map(progressiveCandidateToCard)
+  const lowerPriority = progressiveResult.presentation.lowerPriority.slice(0, 8).map(progressiveCandidateToCard)
+  const otherCount = progressiveResult.presentation.other.length
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
@@ -2472,6 +2473,14 @@ function AdaptiveProductionApp() {
   function updateQuestionAnswer(question, answerValue) {
     const field = questionToRawField(question)
     if (!field) return
+    if (question.answerType === 'text' || question.answerType === 'date') {
+      setForm((current) => ({
+        ...current,
+        adaptiveFindingStates: { ...(current.adaptiveFindingStates || {}), [field]: answerValue ? 'present' : 'not_assessed' },
+        [field]: answerValue,
+      }))
+      return
+    }
     const nextValue = answerValue === 'present' ? true : answerValue === 'absent' ? false : 'unknown'
     setForm((current) => ({
       ...current,
@@ -2481,7 +2490,7 @@ function AdaptiveProductionApp() {
   }
 
   function freezeRound(round) {
-    setRounds((current) => ({ ...current, [round]: activeShadow.roundQuestions.slice(0, 3) }))
+    setRounds((current) => ({ ...current, [round]: progressiveResult.nextQuestions.slice(0, 3) }))
     setFlowStep(round)
   }
 
@@ -2491,7 +2500,7 @@ function AdaptiveProductionApp() {
       return
     }
     if (flowStep === 'round1') {
-      if (activeShadow.stopEvaluation.shouldStopQuestioning || activeShadow.roundQuestions.length === 0) {
+      if (progressiveResult.nextQuestions.length === 0) {
         setFlowStep('result')
       } else {
         freezeRound('round2')
@@ -2535,16 +2544,16 @@ function AdaptiveProductionApp() {
           <div className="result-label">Important</div>
           <h2>見逃してはいけない候補</h2>
           <div className="compact-flag-list">
-            {redFlagItems.map((item) => <span key={item.name}>{item.name}</span>)}
+            {redFlagItems.map((item) => <span key={item.id}>{item.displayName}</span>)}
           </div>
         </section>
       )}
 
       <section className="adaptive-workspace" id="checker">
         {flowStep === 'initial' && <InitialAdaptiveStep form={form} updateField={updateField} toggleSymptom={toggleSymptom} normalizedContext={normalizedContext} />}
-        {flowStep === 'round1' && <AdaptiveRoundStep title="追加確認 Round 1" description="候補を絞るため、今の入力から重要度が高い質問を最大3つだけ表示します。" questions={rounds.round1} form={form} updateQuestionAnswer={updateQuestionAnswer} stopEvaluation={activeShadow.stopEvaluation} />}
-        {flowStep === 'round2' && <AdaptiveRoundStep title="追加確認 Round 2" description="Round 1の回答後に再評価し、必要な確認だけを最大3つ表示します。" questions={rounds.round2} form={form} updateQuestionAnswer={updateQuestionAnswer} stopEvaluation={activeShadow.stopEvaluation} />}
-        {flowStep === 'result' && <AdaptiveResultStep primary={primary} importantCompeting={importantCompeting} supporting={supporting} otherCount={otherCount} diagnosticSummaryResult={diagnosticSummaryResult} testRecommendationResult={testRecommendationResult} stopEvaluation={activeShadow.stopEvaluation} />}
+        {flowStep === 'round1' && <AdaptiveRoundStep title="追加確認 Round 1" description="現在の候補を分けるため、重要度が高い質問を最大3つだけ表示します。" questions={rounds.round1} form={form} updateQuestionAnswer={updateQuestionAnswer} />}
+        {flowStep === 'round2' && <AdaptiveRoundStep title="追加確認 Round 2" description="Round 1の回答後に再評価し、必要な確認だけを最大3つ表示します。" questions={rounds.round2} form={form} updateQuestionAnswer={updateQuestionAnswer} />}
+        {flowStep === 'result' && <AdaptiveResultStep primary={primary} importantCompeting={importantCompeting} supporting={supporting} lowerPriority={lowerPriority} otherCount={otherCount} diagnosticSummaryResult={diagnosticSummaryResult} testRecommendationResult={testRecommendationResult} progressiveResult={progressiveResult} />}
       </section>
 
       <AdaptiveBottomNav flowStep={flowStep} onBack={handleBack} onNext={handleNext} onReset={resetAll} />
@@ -2560,6 +2569,7 @@ function InitialAdaptiveStep({ form, updateField, toggleSymptom, normalizedConte
     { id: 'symptomSkinFindings', label: '皮膚/軟部' },
     { id: 'symptomHeadache', label: '神経' },
     { id: 'symptomJointPain', label: '関節' },
+    { id: 'symptomChest', label: '胸部' },
     { id: 'symptomBackPain', label: '腰背部' },
     { id: 'symptomNeckPain', label: '頸部' },
     { id: 'symptomNoLocalizing', label: '局在症状なし' },
@@ -2625,13 +2635,13 @@ function InitialAdaptiveStep({ form, updateField, toggleSymptom, normalizedConte
           ))}
         </div>
         <p className="field-hint">国・地域・帰国日はInitialで大量表示せず、必要時に追加確認へ回します。</p>
-        <small className="schema-note">travel state: {normalizedContext.exposures.internationalTravel.state.state}</small>
+        <small className="schema-note">{formatFindingState(normalizedContext.exposures.internationalTravel.state.state)}</small>
       </section>
     </div>
   )
 }
 
-function AdaptiveRoundStep({ title, description, questions, form, updateQuestionAnswer, stopEvaluation }) {
+function AdaptiveRoundStep({ title, description, questions, form, updateQuestionAnswer }) {
   return (
     <div className="adaptive-step-stack">
       <header className="adaptive-step-header" tabIndex="-1" data-flow-heading="true">
@@ -2644,15 +2654,8 @@ function AdaptiveRoundStep({ title, description, questions, form, updateQuestion
           <article key={question.id} className="adaptive-question-card" data-question-id={question.id}>
             <div className="question-index">Q{index + 1}</div>
             <h3>{question.label}</h3>
-            <p>{question.selectionReasons?.join(' / ') || '現在の入力から確認候補になっています。'}</p>
-            <div className="adaptive-radio-grid options">
-              {question.options.map((option) => (
-                <label key={option.value} className="adaptive-radio-card">
-                  <input type="radio" name={question.id} checked={getQuestionCurrentValue(form, question) === option.value} onChange={() => updateQuestionAnswer(question, option.value)} />
-                  <span>{option.label}</span>
-                </label>
-              ))}
-            </div>
+            <p>{formatQuestionReason(question)}</p>
+            <AdaptiveQuestionInput question={question} form={form} updateQuestionAnswer={updateQuestionAnswer} />
           </article>
         )) : (
           <article className="adaptive-card">
@@ -2661,18 +2664,47 @@ function AdaptiveRoundStep({ title, description, questions, form, updateQuestion
           </article>
         )}
       </div>
-      <StopReasonCard stopEvaluation={stopEvaluation} />
+      <NextConfirmationCard />
     </div>
   )
 }
 
-function AdaptiveResultStep({ primary, importantCompeting, supporting, otherCount, diagnosticSummaryResult, testRecommendationResult, stopEvaluation }) {
+function AdaptiveQuestionInput({ question, form, updateQuestionAnswer }) {
+  if (question.answerType === 'text') {
+    return (
+      <label className="field adaptive-long-field">
+        <span>国・地域</span>
+        <input type="text" value={getQuestionCurrentValue(form, question)} onChange={(event) => updateQuestionAnswer(question, event.target.value)} placeholder="例：東南アジア、サハラ以南アフリカなど" />
+      </label>
+    )
+  }
+  if (question.answerType === 'date') {
+    return (
+      <label className="field adaptive-long-field">
+        <span>帰国日または最終滞在日</span>
+        <input type="date" value={getQuestionCurrentValue(form, question)} onChange={(event) => updateQuestionAnswer(question, event.target.value)} />
+      </label>
+    )
+  }
+  return (
+    <div className="adaptive-radio-grid options">
+      {question.options.map((option) => (
+        <label key={option.value} className="adaptive-radio-card">
+          <input type="radio" name={question.id} checked={getQuestionCurrentValue(form, question) === option.value} onChange={() => updateQuestionAnswer(question, option.value)} />
+          <span>{option.label}</span>
+        </label>
+      ))}
+    </div>
+  )
+}
+
+function AdaptiveResultStep({ primary, importantCompeting, supporting, lowerPriority, otherCount, diagnosticSummaryResult, testRecommendationResult, progressiveResult }) {
   return (
     <div className="adaptive-step-stack result-view">
       <header className="adaptive-step-header result-first" tabIndex="-1" data-flow-heading="true">
         <span className="step-badge">結果</span>
         <h2>Result</h2>
-        <p>Primary、根拠、次の確認を優先して表示します。診断確定ではありません。</p>
+        <p>現時点で考える鑑別です。追加情報により鑑別順位が変わる可能性があります。</p>
       </header>
       <section className="adaptive-result-grid first-viewport-target">
         <div className="adaptive-result-column primary-column">
@@ -2681,7 +2713,7 @@ function AdaptiveResultStep({ primary, importantCompeting, supporting, otherCoun
         </div>
         <div className="adaptive-result-column next-column">
           <h3>次の確認</h3>
-          <StopReasonCard stopEvaluation={stopEvaluation} />
+          <NextConfirmationCard />
           <CompactTestList result={testRecommendationResult} />
         </div>
       </section>
@@ -2695,10 +2727,17 @@ function AdaptiveResultStep({ primary, importantCompeting, supporting, otherCoun
         <h3>Supporting differential</h3>
         <div className="adaptive-disease-list">{supporting.length ? supporting.map((item) => <AdaptiveDiseaseCard key={item.name} item={item} tone={item.tone} compact />) : <p>追加のsupporting候補はまだありません。</p>}</div>
       </section>
+      {lowerPriority.length > 0 && (
+        <details className="adaptive-card">
+          <summary>優先度が下がった候補 <span>{lowerPriority.length}件</span></summary>
+          <div className="adaptive-disease-list">{lowerPriority.map((item) => <AdaptiveDiseaseCard key={item.name} item={item} tone={item.tone} compact />)}</div>
+        </details>
+      )}
       <details className="adaptive-card">
         <summary>Other candidates <span>{otherCount}件</span></summary>
-        <p>入力が増えるとここからPrimary/Supportingへ移動します。</p>
+        <p>情報が追加されると、ここからPrimary/Supportingへ移動する可能性があります。</p>
       </details>
+      <ProgressiveSafetyNotes progressiveResult={progressiveResult} />
       <DiagnosticSummary result={diagnosticSummaryResult} />
     </div>
   )
@@ -2712,9 +2751,10 @@ function AdaptiveDiseaseCard({ item, tone, compact = false }) {
           <span className="result-label">{item.category}</span>
           <h4>{item.name}</h4>
         </div>
-        <strong className="match-count">{item.matchCount}項目一致</strong>
+        <strong className="match-count">{item.stateLabel}</strong>
       </div>
       <CardBlock title="根拠" items={(item.matchedFindings || item.reasons || []).slice(0, compact ? 2 : 3)} />
+      {!compact && item.unknownFindings?.length > 0 && <CardBlock title="まだ不明な重要情報" items={item.unknownFindings} />}
       <CardBlock title="次に確認" items={(item.nextActions || []).slice(0, compact ? 2 : 4)} />
     </article>
   )
@@ -2730,14 +2770,117 @@ function CompactTestList({ result }) {
   )
 }
 
-function StopReasonCard({ stopEvaluation }) {
+function ProgressiveSafetyNotes({ progressiveResult }) {
+  const notes = progressiveResult.candidates
+    .filter((candidate) => ['malaria', 'sfts', 'japanese_spotted_fever', 'scrub_typhus'].includes(candidate.id))
+    .filter((candidate) => candidate.state !== 'unassessed' || candidate.id === 'malaria')
+    .flatMap((candidate) => candidate.safetyNotes || [])
+    .slice(0, 3)
+
+  if (notes.length === 0) return null
+
   return (
-    <article className="adaptive-card stop-card">
-      <h3>Stop evaluator</h3>
-      <div className="compact-flag-list neutral-list">{stopEvaluation.reasons.map((reason) => <span key={reason}>{reason}</span>)}</div>
-      <CardBlock title="次に行うこと" items={stopEvaluation.nextActions} />
+    <article className="adaptive-card caution">
+      <h3>見落とし防止メモ</h3>
+      <ul>
+        {notes.map((note) => (
+          <li key={note}>{note}</li>
+        ))}
+      </ul>
     </article>
   )
+}
+
+function NextConfirmationCard() {
+  return (
+    <article className="adaptive-card stop-card">
+      <h3>次に確認すること</h3>
+      <p>候補を絞るため、追加問診、身体所見、検査で鑑別を進めます。</p>
+      <CardBlock title="確認項目" items={['入力済み所見の再確認', '未確認の重要所見', '必要な検査と画像']} />
+    </article>
+  )
+}
+
+function progressiveCandidateToCard(candidate) {
+  const matchedFindings = candidate.supportingFindings.map((item) => item.label)
+  const unknownFindings = candidate.unknownImportantFindings.map((item) => item.label).slice(0, 3)
+  const nextActions = candidate.suggestedTests.length ? candidate.suggestedTests : ['追加問診', '身体所見確認', '経時的評価']
+
+  return {
+    name: candidate.displayName,
+    category: formatCandidateCategory(candidate),
+    tone: formatCandidateTone(candidate),
+    matchCount: matchedFindings.length,
+    matchedFindings: matchedFindings.length ? matchedFindings : ['現時点では代表所見が未確認です'],
+    unknownFindings,
+    nextActions,
+    stateLabel: formatCandidateState(candidate.state),
+    weakContradictions: candidate.weakContradictions.map((item) => item.label),
+  }
+}
+
+function formatCandidateTone(candidate) {
+  if (candidate.majorCandidate || candidate.tier === 'critical') return 'danger'
+  if (candidate.tier === 'high') return 'caution'
+  if (['medication', 'malignancy', 'vascular', 'nonInfectiousInflammation', 'viral'].includes(candidate.category)) return 'info'
+  return 'neutral'
+}
+
+function formatCandidateCategory(candidate) {
+  const labels = {
+    respiratory: '呼吸器',
+    urinary: '尿路',
+    abdominal: '腹腔内/胆道',
+    skinSoftTissue: '皮膚軟部',
+    centralNervous: '中枢神経',
+    boneJoint: '骨・関節',
+    bloodstream: '血流感染',
+    vascular: '血管',
+    medication: '薬剤',
+    malignancy: '悪性疾患',
+    nonInfectiousInflammation: '非感染性炎症',
+    cardiac: '心臓',
+    travelInfection: '渡航感染症',
+    tickBorne: 'マダニ媒介',
+    chest: '胸部',
+    viral: 'ウイルス',
+  }
+  return labels[candidate.category] || candidate.category
+}
+
+function formatCandidateState(state) {
+  const labels = {
+    critical_watch: '見逃し注意',
+    high: '支持が強い',
+    moderate: '中等度の支持',
+    low: '弱い支持',
+    unassessed: '情報不足',
+  }
+  return labels[state] || '情報不足'
+}
+
+function getExplicitAbsences(form) {
+  return Object.entries(form.adaptiveFindingStates || {})
+    .filter(([, value]) => value === 'absent')
+    .map(([field]) => field)
+}
+
+function formatQuestionReason(question) {
+  if (question.answerType === 'text') return '渡航地域は分類して扱います。自由入力の国名を医学Ruleへ直接比較しません。'
+  if (question.answerType === 'date') return '帰国時期により検査タイミングや鑑別の優先度を整理します。'
+  if (question.sourceCandidates?.length) return '現在の上位候補を分けるための確認です。'
+  return '現在の入力から確認候補になっています。'
+}
+
+function formatFindingState(state) {
+  const labels = {
+    present: '海外渡航/滞在：あり',
+    absent: '海外渡航/滞在：なし',
+    unknown: '海外渡航/滞在：不明',
+    not_assessed: '海外渡航/滞在：未評価',
+    indeterminate: '海外渡航/滞在：判定困難',
+  }
+  return labels[state] || '海外渡航/滞在：未評価'
 }
 
 function AdaptiveProgress({ flowStep, rounds }) {
@@ -2776,8 +2919,9 @@ function questionToRawField(question) {
     q_joint_swelling_rom: 'jointSwelling', q_joint_knee_poly: 'kneeJointPain', q_joint_prosthetic: 'prostheticJoint',
     q_back_local_pain: 'boneBackPain', q_back_neuro_mobility: 'walkingDifficulty', q_back_bacteremia_context: 'positiveBloodCulture',
     q_sys_drug: 'recentDrugStart', q_sys_bsymptom_ldh: 'unknownLdhHigh', q_sys_pmr_gca: 'unknownShoulderThighPain', q_sys_thrombosis: 'legSwelling',
-    q_travel_recent: 'travelExposure', q_travel_region_timing: 'travelTropicalSubtropical', q_travel_chills_course: 'chills', q_travel_headache_rash_joint: 'cnsHeadache',
+    q_travel_recent: 'travelExposure', q_travel_region_timing: 'travelTropicalSubtropical', q_travel_country_region: 'travelCountryText', q_travel_return_timing: 'travelReturnDate', q_travel_chills_course: 'chills', q_travel_headache_rash_joint: 'cnsHeadache',
     q_exp_outdoor: 'outdoorExposure', q_exp_tick_bite: 'knownTickBite', q_exp_eschar: 'eschar',
+    q_chest_pain_character: 'chestPain', q_chest_ecg_troponin: 'ecgAbnormality',
   }
   return map[question.id]
 }
@@ -2787,6 +2931,7 @@ function getQuestionCurrentValue(form, question) {
   const stateValue = field ? form.adaptiveFindingStates?.[field] : undefined
   if (['present', 'absent', 'unknown', 'not_assessed', 'indeterminate'].includes(stateValue)) return stateValue
   const value = field ? form[field] : undefined
+  if (question.answerType === 'text' || question.answerType === 'date') return value || ''
   if (value === true || value === 'present') return 'present'
   if (value === false || value === 'absent') return 'absent'
   if (value === 'unknown') return 'unknown'

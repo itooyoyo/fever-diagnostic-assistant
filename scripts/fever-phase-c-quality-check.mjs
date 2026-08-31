@@ -71,12 +71,12 @@ function runPhaseCTests() {
     assert(shadow.roundQuestions.length <= 3, `question cap violation: ${shadow.roundQuestions.length}`)
   })
   addTest(tests, '08 frozen questions are stored per round and not rendered from live selector directly', () => {
-    assert(app.includes("setRounds((current) => ({ ...current, [round]: activeShadow.roundQuestions.slice(0, 3) }))"), 'round freeze storage missing')
+    assert(app.includes("setRounds((current) => ({ ...current, [round]: progressiveResult.nextQuestions.slice(0, 3) }))"), 'round freeze storage missing')
     assert(app.includes('questions={rounds.round1}') && app.includes('questions={rounds.round2}'), 'round rendering should use frozen questions')
   })
-  addTest(tests, '09 stop evaluator reasons are visible in result and rounds', () => {
-    assert(app.includes('function StopReasonCard'), 'StopReasonCard missing')
-    assert(app.includes('stopEvaluation.reasons.map'), 'stop reasons not rendered')
+  addTest(tests, '09 internal stop reasons are replaced with Japanese next-confirmation copy', () => {
+    assert(app.includes('function NextConfirmationCard'), 'NextConfirmationCard missing')
+    assert(!app.includes('stopEvaluation.reasons.map'), 'internal stop reasons should not render')
   })
   addTest(tests, '10 Red Flag giant banner is not used in production flow', () => {
     const productionSource = app.slice(app.indexOf('function AdaptiveProductionApp'), app.indexOf('function InitialAdaptiveStep'))
@@ -138,7 +138,7 @@ function runPhaseCTests() {
     assert(!active.includes('malaria') && !active.includes('dengue') && !active.includes('chikungunya'), 'travel candidates should not be active')
   })
   addTest(tests, '19 major candidates are visible outside collapsed Other', () => {
-    assert(app.includes('importantCompeting') && app.includes('diagnosticSummaryResult.mustNotMiss'), 'major candidate visibility path missing')
+    assert(app.includes('importantCompeting') && app.includes('progressiveResult.presentation.importantCompeting'), 'major candidate visibility path missing')
   })
   addTest(tests, '20 scroll and focus hook exists for every transition', () => {
     assert(app.includes('window.scrollTo({ top: 0') && app.includes('data-flow-heading="true"'), 'scroll/focus transition hook missing')

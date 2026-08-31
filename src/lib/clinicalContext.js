@@ -228,6 +228,7 @@ const STEP2_SYMPTOM_MAP = {
   symptomBackPain: 'symptomDomains.backSpine.domainSelected',
   symptomJointPain: 'symptomDomains.boneJoint.domainSelected',
   symptomSkinFindings: 'symptomDomains.skinSoftTissue.domainSelected',
+  symptomChest: 'symptomDomains.cardiopulmonary.domainSelected',
   symptomChestPain: 'symptomDomains.cardiopulmonary.chestPainDomainSelected',
   symptomChills: 'infectionPatterns.chillsDomainSelected',
   symptomPositiveBloodCulture: 'infectionPatterns.positiveBloodCultureDomainSelected',

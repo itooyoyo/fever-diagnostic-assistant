@@ -51,11 +51,11 @@ const SCORE_DELTA = Object.freeze({
 })
 
 const PRIOR_SCORE = Object.freeze({
-  [PRIOR_MODEL.COMMON]: 28,
+  [PRIOR_MODEL.COMMON]: 18,
   [PRIOR_MODEL.CONTEXTUAL]: 18,
   [PRIOR_MODEL.UNCOMMON]: 10,
   [PRIOR_MODEL.RARE]: 4,
-  [PRIOR_MODEL.MAJOR_WATCH]: 18,
+  [PRIOR_MODEL.MAJOR_WATCH]: 8,
 })
 
 const TIER_BONUS = Object.freeze({
@@ -92,6 +92,15 @@ const CRP_BACTERIAL_SUPPORT = new Set([
 const CHEST_CANDIDATES = new Set(['pericarditis', 'myocarditis', 'pleuritis', 'dvt_pe', 'aortic_disease'])
 const TICK_CANDIDATES = new Set(['sfts', 'japanese_spotted_fever', 'scrub_typhus'])
 const TRAVEL_CANDIDATES = new Set(['malaria', 'dengue', 'chikungunya'])
+const NONSPECIFIC_FINDINGS = new Set(['vitals.fever', 'inflammation.highCrp', 'inflammation.highWbc'])
+const CRP_CONTEXT_LIMITED_CANDIDATES = new Set([
+  'pneumonia',
+  'bacteremia',
+  'pyelonephritis',
+  'acute_cholangitis',
+  'intra_abdominal_abscess',
+  'septic_arthritis',
+])
 
 export function buildCandidateUniverse() {
   return [...CANDIDATE_REGISTRY, ...SHADOW_ONLY_CANDIDATES]
@@ -141,8 +150,7 @@ export function buildProgressiveNarrowingShadow(rawAnswers = {}, options = {}) {
 
 function scoreCandidate(candidate, context) {
   const evidence = []
-  let score = (PRIOR_SCORE[getPrior(candidate, context)] || 0) + (TIER_BONUS[candidate.tier] || 0)
-  let positiveCount = 0
+  const baseScore = (PRIOR_SCORE[getPrior(candidate, context)] || 0) + (TIER_BONUS[candidate.tier] || 0)
 
   for (const findingPath of candidate.supportingFindings || []) {
     const state = getFindingState(context, findingPath)
@@ -150,11 +158,8 @@ function scoreCandidate(candidate, context) {
     if (state === FINDING_STATES.PRESENT) {
       const effect = effectForSupport(candidate, findingPath)
       evidence.push(evidenceItem(effect, findingPath, label, state))
-      score += SCORE_DELTA[effect]
-      positiveCount += 1
     } else if (state === FINDING_STATES.ABSENT) {
       evidence.push(evidenceItem(EVIDENCE_EFFECTS.WEAK_CONTRADICTION, findingPath, label, state))
-      score += SCORE_DELTA[EVIDENCE_EFFECTS.WEAK_CONTRADICTION]
     } else {
       evidence.push(evidenceItem(EVIDENCE_EFFECTS.NEUTRAL, findingPath, label, state))
     }
@@ -166,11 +171,11 @@ function scoreCandidate(candidate, context) {
   addTickEvidence(candidate, context, contextEvidence)
   addTravelEvidence(candidate, context, contextEvidence)
 
-  for (const item of contextEvidence) {
-    evidence.push(item)
-    score += SCORE_DELTA[item.effect] || 0
-    if (item.effect.includes('Support')) positiveCount += 1
-  }
+  evidence.push(...contextEvidence)
+  const dedupedEvidence = dedupeEvidence(evidence)
+  const score = baseScore + dedupedEvidence.reduce((sum, item) => sum + (SCORE_DELTA[item.effect] || 0), 0)
+  const positiveCount = dedupedEvidence.filter((item) => supportEffects.has(item.effect)).length
+  const evidenceCompleteness = deriveEvidenceCompleteness(candidate, context)
 
   const state = deriveCandidateState(candidate, score, positiveCount)
   const band = deriveBand(candidate, context, state, score, positiveCount)
@@ -188,11 +193,12 @@ function scoreCandidate(candidate, context) {
     state,
     band,
     removed: false,
-    movement: positiveCount > 0 ? 'up' : score < 0 ? 'down' : 'unchanged',
-    supportingFindings: evidence.filter((item) => supportEffects.has(item.effect)),
-    weakContradictions: evidence.filter((item) => contradictionEffects.has(item.effect)),
-    unknownImportantFindings: evidence.filter((item) => item.effect === EVIDENCE_EFFECTS.NEUTRAL && isImportantUnknown(candidate, item.path)),
-    evidence,
+    movement: positiveCount > 0 ? 'up' : score < baseScore ? 'down' : 'unchanged',
+    supportingFindings: dedupedEvidence.filter((item) => supportEffects.has(item.effect)),
+    weakContradictions: dedupedEvidence.filter((item) => contradictionEffects.has(item.effect)),
+    unknownImportantFindings: dedupedEvidence.filter((item) => item.effect === EVIDENCE_EFFECTS.NEUTRAL && isImportantUnknown(candidate, item.path)),
+    evidence: dedupedEvidence,
+    evidenceCompleteness,
     suggestedTests: candidate.suggestedTests || [],
     safetyNotes: candidate.safetyNotes || [],
     productionConnection: 'shadow_only',
@@ -219,7 +225,7 @@ function addInitialProblemEvidence(candidate, context, evidence) {
     evidence.push(evidenceItem(EVIDENCE_EFFECTS.WEAK_SUPPORT, 'vitals.fever', '発熱', FINDING_STATES.PRESENT))
   }
   if (isHighCrp(context) && CRP_BACTERIAL_SUPPORT.has(candidate.id)) {
-    evidence.push(evidenceItem(EVIDENCE_EFFECTS.SUPPORT, 'inflammation.highCrp', 'CRP高値', FINDING_STATES.PRESENT))
+    evidence.push(evidenceItem(effectForCrpContext(candidate, context), 'inflammation.highCrp', 'CRP高値', FINDING_STATES.PRESENT))
   }
   if (isHighCrp(context) && ['drug_fever', 'pmr', 'pmr_gca', 'tumor_fever', 'intravascular_lymphoma', 'cppd', 'tafro'].includes(candidate.id)) {
     evidence.push(evidenceItem(EVIDENCE_EFFECTS.WEAK_SUPPORT, 'inflammation.highCrp', 'CRP高値', FINDING_STATES.PRESENT))
@@ -229,8 +235,66 @@ function addInitialProblemEvidence(candidate, context, evidence) {
   }
 }
 
+function dedupeEvidence(evidence) {
+  const strongestByPath = new Map()
+  for (const item of evidence) {
+    const current = strongestByPath.get(item.path)
+    if (!current || evidenceStrength(item.effect) > evidenceStrength(current.effect)) {
+      strongestByPath.set(item.path, item)
+    }
+  }
+  return [...strongestByPath.values()]
+}
+
+function evidenceStrength(effect) {
+  return {
+    [EVIDENCE_EFFECTS.STRONG_SUPPORT]: 5,
+    [EVIDENCE_EFFECTS.SUPPORT]: 4,
+    [EVIDENCE_EFFECTS.WEAK_SUPPORT]: 3,
+    [EVIDENCE_EFFECTS.NEUTRAL]: 2,
+    [EVIDENCE_EFFECTS.WEAK_CONTRADICTION]: 1,
+    [EVIDENCE_EFFECTS.STRONG_CONTRADICTION]: 0,
+  }[effect] ?? 2
+}
+
+function effectForCrpContext(candidate, context) {
+  if (!CRP_CONTEXT_LIMITED_CANDIDATES.has(candidate.id)) return EVIDENCE_EFFECTS.SUPPORT
+  return hasSpecificSupport(candidate, context) ? EVIDENCE_EFFECTS.SUPPORT : EVIDENCE_EFFECTS.WEAK_SUPPORT
+}
+
+function hasSpecificSupport(candidate, context) {
+  return (candidate.supportingFindings || [])
+    .filter((findingPath) => !NONSPECIFIC_FINDINGS.has(findingPath))
+    .some((findingPath) => getFindingState(context, findingPath) === FINDING_STATES.PRESENT)
+}
+
+function deriveEvidenceCompleteness(candidate, context) {
+  const discriminatingFindings = (candidate.supportingFindings || []).filter((findingPath) => !NONSPECIFIC_FINDINGS.has(findingPath))
+  const counts = { evaluated: 0, supporting: 0, contradictory: 0, notAssessed: 0, unknown: 0 }
+  for (const findingPath of discriminatingFindings) {
+    const state = getFindingState(context, findingPath)
+    if (state === FINDING_STATES.PRESENT) {
+      counts.evaluated += 1
+      counts.supporting += 1
+    } else if (state === FINDING_STATES.ABSENT) {
+      counts.evaluated += 1
+      counts.contradictory += 1
+    } else if (state === FINDING_STATES.UNKNOWN || state === FINDING_STATES.INDETERMINATE) {
+      counts.unknown += 1
+    } else {
+      counts.notAssessed += 1
+    }
+  }
+  const ratio = discriminatingFindings.length === 0 ? 0 : counts.evaluated / discriminatingFindings.length
+  const level = ratio >= 0.67 ? 'substantial' : ratio >= 0.34 ? 'partial' : 'minimal'
+  return { ...counts, total: discriminatingFindings.length, level }
+}
+
 function addChestEvidence(candidate, context, evidence) {
   if (!CHEST_CANDIDATES.has(candidate.id)) return
+  if (getFindingState(context, 'symptomDomains.cardiopulmonary.domainSelected') === FINDING_STATES.PRESENT) {
+    evidence.push(evidenceItem(EVIDENCE_EFFECTS.WEAK_SUPPORT, 'symptomDomains.cardiopulmonary.domainSelected', '胸部症状domain', FINDING_STATES.PRESENT))
+  }
   if (getFindingState(context, 'symptomDomains.cardiopulmonary.chestPain') === FINDING_STATES.PRESENT || getFindingState(context, 'symptomDomains.respiratory.chestPain') === FINDING_STATES.PRESENT) {
     evidence.push(evidenceItem(EVIDENCE_EFFECTS.SUPPORT, 'symptomDomains.cardiopulmonary.chestPain', '胸痛', FINDING_STATES.PRESENT))
   }
@@ -324,11 +388,131 @@ function buildDiscriminationQuestions(candidates, context, options) {
   const limit = Math.min(3, Math.max(0, Number(options.limit) || 3))
   const topCandidateIds = new Set(candidates.slice(0, 14).map((candidate) => candidate.id))
 
-  return ADAPTIVE_QUESTION_REGISTRY
+  const registryQuestions = ADAPTIVE_QUESTION_REGISTRY
     .map((question) => scoreDiscriminationQuestion(question, context, topCandidateIds, options))
     .filter((item) => item.eligible)
+  const productionQuestions = [
+    ...buildTravelGateQuestions(context),
+    ...buildTravelDetailQuestions(context, topCandidateIds),
+    ...buildChestDetailQuestions(context, topCandidateIds),
+  ]
+
+  return uniqueQuestionsById([...productionQuestions, ...registryQuestions])
     .toSorted((a, b) => b.informationValue - a.informationValue || a.id.localeCompare(b.id))
     .slice(0, limit)
+}
+
+function uniqueQuestionsById(questions) {
+  const seen = new Set()
+  return questions.filter((question) => {
+    if (seen.has(question.id)) return false
+    seen.add(question.id)
+    return true
+  })
+}
+
+function buildTravelGateQuestions(context) {
+  if (getFindingState(context, 'exposures.internationalTravel.state') !== FINDING_STATES.NOT_ASSESSED) return []
+  return [
+    {
+      id: 'q_travel_recent',
+      label: '最近、海外への渡航・滞在がありましたか？',
+      domain: 'internationalTravel',
+      findingId: 'exposures.internationalTravel.state',
+      answerType: 'findingState',
+      options: findingStateOptions(),
+      sourceCandidates: ['malaria', 'dengue', 'chikungunya'],
+      informationValue: 120,
+      candidateEffects: { malaria: EVIDENCE_EFFECTS.WEAK_SUPPORT, dengue: EVIDENCE_EFFECTS.WEAK_SUPPORT, chikungunya: EVIDENCE_EFFECTS.WEAK_SUPPORT },
+      selectionReasons: ['渡航関連感染症の入口確認'],
+      eligible: true,
+    },
+  ]
+}
+
+function buildTravelDetailQuestions(context, topCandidateIds) {
+  if (getFindingState(context, 'exposures.internationalTravel.state') !== FINDING_STATES.PRESENT) return []
+  const travelCandidateVisible = ['malaria', 'dengue', 'chikungunya'].some((id) => topCandidateIds.has(id))
+  if (!travelCandidateVisible) return []
+  const travel = context.exposures.internationalTravel
+  const questions = []
+  if (travel.countryText.state !== FINDING_STATES.PRESENT) {
+    questions.push({
+      id: 'q_travel_country_region',
+      label: 'どの国・地域に滞在しましたか？',
+      domain: 'internationalTravel',
+      findingId: 'exposures.internationalTravel.countryText',
+      answerType: 'text',
+      sourceCandidates: ['malaria', 'dengue', 'chikungunya'],
+      informationValue: 119,
+      candidateEffects: { malaria: EVIDENCE_EFFECTS.NEUTRAL, dengue: EVIDENCE_EFFECTS.NEUTRAL, chikungunya: EVIDENCE_EFFECTS.NEUTRAL },
+      selectionReasons: ['渡航関連感染症の地域分類を確認'],
+      eligible: true,
+    })
+  }
+  if (travel.returnDate.state !== FINDING_STATES.PRESENT) {
+    questions.push({
+      id: 'q_travel_return_timing',
+      label: 'いつ頃滞在・帰国しましたか？',
+      domain: 'internationalTravel',
+      findingId: 'exposures.internationalTravel.returnDate',
+      answerType: 'date',
+      sourceCandidates: ['malaria', 'dengue', 'chikungunya'],
+      informationValue: 118,
+      candidateEffects: { malaria: EVIDENCE_EFFECTS.WEAK_SUPPORT, dengue: EVIDENCE_EFFECTS.WEAK_SUPPORT, chikungunya: EVIDENCE_EFFECTS.WEAK_SUPPORT },
+      selectionReasons: ['帰国時期から検査タイミングを整理'],
+      eligible: true,
+    })
+  }
+  return questions
+}
+
+function buildChestDetailQuestions(context, topCandidateIds) {
+  if (getFindingState(context, 'symptomDomains.cardiopulmonary.domainSelected') !== FINDING_STATES.PRESENT) return []
+  const chestCandidateVisible = ['pericarditis', 'myocarditis', 'pleuritis', 'dvt_pe', 'aortic_disease'].some((id) => topCandidateIds.has(id))
+  if (!chestCandidateVisible) return []
+  const questions = []
+  if (getFindingState(context, 'symptomDomains.cardiopulmonary.chestPain') === FINDING_STATES.NOT_ASSESSED) {
+    questions.push({
+      id: 'q_chest_pain_character',
+      label: '胸痛、胸背部痛、呼吸困難がありますか？',
+      domain: 'chest',
+      findingId: 'symptomDomains.cardiopulmonary.chestPain',
+      answerType: 'findingState',
+      options: findingStateOptions(),
+      sourceCandidates: ['pericarditis', 'myocarditis', 'pleuritis', 'dvt_pe', 'aortic_disease'],
+      informationValue: 92,
+      candidateEffects: { pericarditis: EVIDENCE_EFFECTS.SUPPORT, myocarditis: EVIDENCE_EFFECTS.SUPPORT, pleuritis: EVIDENCE_EFFECTS.SUPPORT, dvt_pe: EVIDENCE_EFFECTS.SUPPORT, aortic_disease: EVIDENCE_EFFECTS.SUPPORT },
+      selectionReasons: ['胸部domainの重要候補を分離'],
+      eligible: true,
+    })
+  }
+  if (getFindingState(context, 'physicalFindings.ecgAbnormality') === FINDING_STATES.NOT_ASSESSED) {
+    questions.push({
+      id: 'q_chest_ecg_troponin',
+      label: '心電図異常またはトロポニン上昇がありますか？',
+      domain: 'chest',
+      findingId: 'physicalFindings.ecgAbnormality',
+      answerType: 'findingState',
+      options: findingStateOptions(),
+      sourceCandidates: ['pericarditis', 'myocarditis'],
+      informationValue: 88,
+      candidateEffects: { pericarditis: EVIDENCE_EFFECTS.SUPPORT, myocarditis: EVIDENCE_EFFECTS.SUPPORT },
+      selectionReasons: ['心膜炎・心筋炎を分離'],
+      eligible: true,
+    })
+  }
+  return questions
+}
+
+function findingStateOptions() {
+  return [
+    { value: 'present', label: 'あり' },
+    { value: 'absent', label: 'なし' },
+    { value: 'unknown', label: '不明' },
+    { value: 'not_assessed', label: '未評価' },
+    { value: 'indeterminate', label: '判定困難' },
+  ]
 }
 
 function scoreDiscriminationQuestion(question, context, topCandidateIds, options) {
