@@ -26,8 +26,6 @@ import {
   urgentActions,
   warningSigns,
   relativeBradycardiaDifferentials,
-  crpOnlyDifferentials,
-  fuoCategoryCards,
 } from './lib/feverLogic.js'
 
 const STORAGE_KEY = 'fever-diagnostic-assistant:draft'
@@ -336,14 +334,6 @@ const bloodstreamOptions = [
   { id: 'bsiCerebralEmbolicSymptoms', label: '脳塞栓症状' },
   { id: 'bsiSkinFindings', label: '皮膚所見' },
   { id: 'bsiEyeSymptoms', label: '眼症状' },
-]
-
-const mainProblemOptions = [
-  { id: 'fever', label: '発熱がある' },
-  { id: 'crpOnly', label: 'CRP高値のみ' },
-  { id: 'feverAndCrp', label: '発熱＋CRP高値' },
-  { id: 'fuo', label: '原因不明発熱（FUO）' },
-  { id: 'persistentInflammation', label: '炎症反応遷延' },
 ]
 
 const step3NonInfectiousOptions = [
@@ -752,10 +742,6 @@ function LegacyStepApp() {
         .filter(Boolean)
         .join('、')
     : '未入力'
-  const selectedMainProblem =
-    mainProblemOptions.find((item) => item.id === form.mainProblem)?.label ||
-    '未選択'
-
   function toggleEmergencySign(value) {
     setForm((current) => {
       const exists = current.emergencySigns.includes(value)
@@ -973,27 +959,23 @@ function LegacyStepApp() {
               </div>
 
               <fieldset className="choice-group">
-                <legend>今回の主な問題</legend>
-                <div className="toggle-grid problem-grid">
-                  {mainProblemOptions.map((item) => (
-                    <label key={item.id} className="toggle-card radio-card">
-                      <input
-                        type="radio"
-                        name="mainProblem"
-                        checked={form.mainProblem === item.id}
-                        onChange={() => updateField('mainProblem', item.id)}
-                      />
-                      <span>{item.label}</span>
-                    </label>
-                  ))}
-                </div>
+                <legend>バイタル・炎症反応</legend>
+                <p className="field-hint">
+                  BT / CRP / WBC の実測値から炎症パターンを自動判定します。
+                </p>
               </fieldset>
-
-              <MainProblemGuide mainProblem={form.mainProblem} />
 
               <div className="field-row">
                 <NumberField
-                  label="体温"
+                  label="年齢"
+                  value={form.age || ''}
+                  min="0"
+                  max="120"
+                  unit="歳"
+                  onChange={(value) => updateField('age', value)}
+                />
+                <NumberField
+                  label="BT"
                   value={form.temperature}
                   min="34"
                   max="43"
@@ -1002,7 +984,7 @@ function LegacyStepApp() {
                   onChange={(value) => updateField('temperature', value)}
                 />
                 <NumberField
-                  label="心拍数"
+                  label="HR"
                   value={form.heartRate}
                   min="20"
                   max="240"
@@ -1013,13 +995,24 @@ function LegacyStepApp() {
 
               <div className="field-row">
                 <NumberField
-                  label="収縮期血圧"
+                  label="BP"
                   value={form.systolicBp}
                   min="40"
                   max="260"
                   unit="mmHg"
                   onChange={(value) => updateField('systolicBp', value)}
                 />
+                <NumberField
+                  label="RR"
+                  value={form.respiratoryRate || ''}
+                  min="4"
+                  max="80"
+                  unit="/分"
+                  onChange={(value) => updateField('respiratoryRate', value)}
+                />
+              </div>
+
+              <div className="field-row">
                 <NumberField
                   label="SpO2"
                   value={form.spo2}
@@ -1028,9 +1021,6 @@ function LegacyStepApp() {
                   unit="%"
                   onChange={(value) => updateField('spo2', value)}
                 />
-              </div>
-
-              <div className="field-row">
                 <NumberField
                   label="WBC"
                   value={form.wbc}
@@ -1049,6 +1039,35 @@ function LegacyStepApp() {
                   onChange={(value) => updateField('crp', value)}
                 />
               </div>
+
+              <fieldset className="choice-group step2-category-panel">
+                <legend>主症候domain</legend>
+                <p className="field-hint">
+                  複数選択できます。選択したカテゴリはStep2の深掘りにも引き継がれます。
+                </p>
+                <div className="step2-category-grid">
+                  {step2CategoryOptions.map((category) => {
+                    const isActive = category.symptomIds.some((id) =>
+                      form.step2Symptoms.includes(id),
+                    )
+                    return (
+                      <button
+                        key={category.id}
+                        type="button"
+                        className={`category-toggle-card ${isActive ? 'active' : ''}`}
+                        aria-expanded={isActive}
+                        onClick={() => toggleStep2Category(category.symptomIds)}
+                      >
+                        <span className="category-toggle-icon">{isActive ? '▼' : '▶'}</span>
+                        <span>
+                          <strong>{category.label}</strong>
+                          <small>{category.description}</small>
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </fieldset>
 
               <fieldset className="choice-group">
                 <legend>Step1 所見・背景</legend>
@@ -1772,10 +1791,6 @@ function LegacyStepApp() {
             <h3>医療者に伝えるメモ</h3>
             <dl>
               <div>
-                <dt>主な問題</dt>
-                <dd>{selectedMainProblem}</dd>
-              </div>
-              <div>
                 <dt>Step0</dt>
                 <dd>{selectedEmergencySigns}</dd>
               </div>
@@ -1829,95 +1844,6 @@ function LegacyStepApp() {
         このツールは診断を確定するものではありません。表示は「疑い」「考慮」「検討」に留め、患者の状態変化や地域の診療体制に応じて医療機関へ相談してください。
       </footer>
     </main>
-  )
-}
-
-function MainProblemGuide({ mainProblem }) {
-  if (mainProblem === 'crpOnly') {
-    return (
-      <section className="main-problem-guide" aria-label="CRP高値のみの早期鑑別">
-        <article className="step-card caution">
-          <div className="result-label">CRP高値のみ</div>
-          <h3>感染症と非感染症を並行して検討してください</h3>
-          <p>
-            発熱が明らかでないCRP高値でも、深部感染症や非感染性炎症を早期に考慮します。
-          </p>
-        </article>
-        <div className="early-differential-grid">
-          {crpOnlyDifferentials.map((group) => (
-            <article key={group.title} className={`step-card ${group.tone}`}>
-              <div className="result-label">{group.title}</div>
-              <h3>{group.title}を考慮</h3>
-              <CardBlock title="早期に確認したい鑑別" items={group.items} />
-              <CardBlock
-                title="推奨追加検査"
-                items={['病歴・身体所見の再確認', '血液培養や画像検査を症例に応じて検討']}
-              />
-              <CardBlock
-                title="見逃しポイント"
-                items={['発熱が目立たなくても重症感染症や非感染性疾患は否定できません']}
-              />
-            </article>
-          ))}
-        </div>
-      </section>
-    )
-  }
-
-  if (mainProblem === 'fuo') {
-    return (
-      <section className="main-problem-guide" aria-label="FUOの大分類">
-        <article className="step-card info">
-          <div className="result-label">FUO</div>
-          <h3>原因不明発熱（FUO）の大分類から検討してください</h3>
-          <p>
-            感染症だけに寄せすぎず、悪性腫瘍、自己免疫、薬剤、血栓症、大動脈疾患も並行して検討します。
-          </p>
-        </article>
-        <div className="fuo-category-grid">
-          {fuoCategoryCards.map((category) => (
-            <details key={category} className="fuo-category-card">
-              <summary>{category}</summary>
-              <p>今後追加予定</p>
-            </details>
-          ))}
-        </div>
-      </section>
-    )
-  }
-
-  if (mainProblem === 'persistentInflammation') {
-    return (
-      <article className="step-card info">
-        <div className="result-label">炎症反応遷延</div>
-        <h3>感染症・非感染症の両面から再評価してください</h3>
-        <p>
-          炎症反応が遷延する場合は、深部感染症、悪性腫瘍、自己免疫疾患、薬剤、血栓症などを経時的に検討します。
-        </p>
-      </article>
-    )
-  }
-
-  if (mainProblem === 'feverAndCrp') {
-    return (
-      <article className="step-card caution">
-        <div className="result-label">発熱＋CRP高値</div>
-        <h3>感染症を軸にしつつ非感染症も検討してください</h3>
-        <p>
-          危険サイン、局所症状、炎症反応、背景因子を組み合わせて、Step2の症候別評価へ進んでください。
-        </p>
-      </article>
-    )
-  }
-
-  return (
-    <article className="step-card neutral">
-      <div className="result-label">発熱</div>
-      <h3>発熱の初期評価として進めてください</h3>
-      <p>
-        Step0の緊急性評価に続き、感染症らしさ、非感染症、局所症状の有無を順番に確認します。
-      </p>
-    </article>
   )
 }
 

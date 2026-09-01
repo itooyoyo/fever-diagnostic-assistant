@@ -113,18 +113,25 @@ function runProductionTests() {
     assert(clinicalContext.includes("symptomChest: 'symptomDomains.cardiopulmonary.domainSelected'"), 'chest domain normalization missing')
   })
 
-  addTest(tests, '05b Adaptive Initial does not render legacy main-problem choices', () => {
+  addTest(tests, '05b Initial routes do not render legacy main-problem choices', () => {
     const appRouteSource = app.slice(app.indexOf('function App()'), app.indexOf('function AdaptiveProductionApp()'))
+    const legacyStepSource = app.slice(app.indexOf('function LegacyStepApp()'), app.indexOf('function App()'))
     const adaptiveInitialSource = app.slice(app.indexOf('function InitialAdaptiveStep'), app.indexOf('function AdaptiveRoundStep'))
     assert(appRouteSource.includes('legacyStepUi=1'), 'legacy route should remain explicit')
     assert(appRouteSource.includes('return <AdaptiveProductionApp />'), 'default route should render AdaptiveProductionApp')
+    assert(!app.includes('mainProblemOptions'), 'mainProblemOptions should not remain in reachable UI source')
+    assert(!app.includes('name="mainProblem"'), 'mainProblem radio should not render in any route')
+    assert(!app.includes('function MainProblemGuide'), 'main problem guide should not remain reachable')
+    assert(!legacyStepSource.includes('今回の主な問題'), 'legacy Step1 should not render main problem heading')
     assert(!adaptiveInitialSource.includes('mainProblemOptions'), 'mainProblemOptions should not be used in Adaptive Initial')
     assert(!adaptiveInitialSource.includes('name="mainProblem"'), 'mainProblem radio should not render in Adaptive Initial')
     for (const forbidden of ['今回の主な問題', '発熱＋炎症反応上昇', '炎症反応上昇', 'その他/不明']) {
+      assert(!legacyStepSource.includes(forbidden), `legacy main problem label remains in LegacyStepApp: ${forbidden}`)
       assert(!adaptiveInitialSource.includes(forbidden), `legacy main problem label leaked into Adaptive Initial: ${forbidden}`)
     }
     for (const required of ['label="年齢"', 'label="BT"', 'label="BP"', 'label="HR"', 'label="RR"', 'label="SpO2"', 'label="CRP"', 'label="WBC"', '主症候domain']) {
       assert(adaptiveInitialSource.includes(required), `Adaptive Initial required field missing: ${required}`)
+      assert(legacyStepSource.includes(required), `Legacy Step1 required field missing: ${required}`)
     }
   })
 
