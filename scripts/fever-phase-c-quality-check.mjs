@@ -56,8 +56,15 @@ function runPhaseCTests() {
     for (const label of ['年齢', 'BT', 'BP', 'HR', 'RR', 'SpO2', 'CRP', 'WBC']) assert(app.includes(`label="${label}"`), `missing initial field: ${label}`)
     assert(!app.includes('required'), 'Initial should not add required attributes')
   })
-  addTest(tests, '04 main problem supports fever inflammation fever-plus and unknown', () => {
-    for (const label of ['発熱', '炎症反応上昇', '発熱＋炎症反応上昇', 'その他/不明']) assert(app.includes(label), `missing main problem: ${label}`)
+  addTest(tests, '04 Initial derives inflammation pattern from measured values', () => {
+    const adaptiveInitialSource = app.slice(app.indexOf('function InitialAdaptiveStep'), app.indexOf('function AdaptiveRoundStep'))
+    assert(!adaptiveInitialSource.includes('name="mainProblem"'), 'Adaptive Initial should not ask main problem radio choices')
+    assert(adaptiveInitialSource.includes('formatInflammationPattern'), 'derived pattern display missing')
+    const context = normalizeClinicalContext({ temperature: '36.8', wbc: '6500', crp: '6.0' })
+    assert(context.derivedInflammationPattern.bt === 'no_fever', 'BT derived pattern mismatch')
+    assert(context.derivedInflammationPattern.wbc === 'normal_wbc', 'WBC derived pattern mismatch')
+    assert(context.derivedInflammationPattern.crp === 'high_crp', 'CRP derived pattern mismatch')
+    assert(context.derivedInflammationPattern.crpOnlyPattern === true, 'CRP-only pattern should be derived from BT/WBC/CRP')
   })
   addTest(tests, '05 symptom domain compact multi-select is present', () => {
     for (const label of ['呼吸器', '尿路', '腹部/胆道', '皮膚/軟部', '神経', '関節', '腰背部', '頸部', '局在症状なし']) assert(app.includes(label), `missing symptom domain: ${label}`)

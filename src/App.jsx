@@ -2574,6 +2574,7 @@ function InitialAdaptiveStep({ form, updateField, toggleSymptom, normalizedConte
     { id: 'symptomNeckPain', label: '頸部' },
     { id: 'symptomNoLocalizing', label: '局在症状なし' },
   ]
+  const inflammationPattern = formatInflammationPattern(normalizedContext.derivedInflammationPattern)
 
   return (
     <div className="adaptive-step-stack">
@@ -2583,23 +2584,8 @@ function InitialAdaptiveStep({ form, updateField, toggleSymptom, normalizedConte
         <p>未測定は空欄で構いません。unknown / not assessedを保ったまま次へ進めます。</p>
       </header>
       <section className="adaptive-card">
-        <h3>主問題</h3>
-        <div className="adaptive-radio-grid">
-          {[
-            ['fever', '発熱'],
-            ['crpOnly', '炎症反応上昇'],
-            ['feverAndCrp', '発熱＋炎症反応上昇'],
-            ['fuo', 'その他/不明'],
-          ].map(([id, label]) => (
-            <label key={id} className="adaptive-radio-card">
-              <input type="radio" name="mainProblem" checked={form.mainProblem === id} onChange={() => updateField('mainProblem', id)} />
-              <span>{label}</span>
-            </label>
-          ))}
-        </div>
-      </section>
-      <section className="adaptive-card">
         <h3>バイタル・炎症反応</h3>
+        <p className="field-hint">BT / CRP / WBC の実測値から炎症パターンを自動判定します。</p>
         <div className="adaptive-field-grid">
           <NumberField label="年齢" value={form.age || ''} min="0" max="120" unit="歳" onChange={(value) => updateField('age', value)} />
           <NumberField label="BT" value={form.temperature} min="30" max="45" step="0.1" unit="℃" onChange={(value) => updateField('temperature', value)} />
@@ -2609,6 +2595,10 @@ function InitialAdaptiveStep({ form, updateField, toggleSymptom, normalizedConte
           <NumberField label="SpO2" value={form.spo2} min="50" max="100" unit="%" onChange={(value) => updateField('spo2', value)} />
           <NumberField label="CRP" value={form.crp} min="0" max="80" step="0.1" unit="mg/dL" onChange={(value) => updateField('crp', value)} />
           <NumberField label="WBC" value={form.wbc} min="0" max="100000" unit="/µL" onChange={(value) => updateField('wbc', value)} />
+        </div>
+        <div className={inflammationPattern.isCrpOnly ? 'derived-pattern-card active' : 'derived-pattern-card'}>
+          <span>現在のパターン</span>
+          <strong>{inflammationPattern.summary}</strong>
         </div>
       </section>
       <section className="adaptive-card">
@@ -2881,6 +2871,34 @@ function formatFindingState(state) {
     indeterminate: '海外渡航/滞在：判定困難',
   }
   return labels[state] || '海外渡航/滞在：未評価'
+}
+
+function formatInflammationPattern(pattern = {}) {
+  const btLabels = {
+    fever: '発熱あり',
+    no_fever: '発熱なし',
+    not_assessed: 'BT未入力',
+  }
+  const crpLabels = {
+    normal_crp: 'CRP正常域',
+    mild_crp_elevation: 'CRP軽度上昇',
+    crp_elevation: 'CRP上昇',
+    high_crp: 'CRP高値',
+    marked_crp: 'CRP著明高値',
+    not_assessed: 'CRP未入力',
+  }
+  const wbcLabels = {
+    leukocytosis: '白血球増多あり',
+    leukopenia: '白血球低下あり',
+    normal_wbc: '白血球増多なし',
+    not_assessed: 'WBC未入力',
+  }
+  const summary = [
+    crpLabels[pattern.crp] || 'CRP未入力',
+    btLabels[pattern.bt] || 'BT未入力',
+    wbcLabels[pattern.wbc] || 'WBC未入力',
+  ].join(' / ')
+  return { summary, isCrpOnly: pattern.crpOnlyPattern === true }
 }
 
 function AdaptiveProgress({ flowStep, rounds }) {

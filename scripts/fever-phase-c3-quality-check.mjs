@@ -81,9 +81,14 @@ function runProgressiveStaticTests() {
 
   addTest(tests, '01 universe includes registry and shadow candidates', () => {
     const universe = buildCandidateUniverse()
-    assert(universe.length === CANDIDATE_REGISTRY.length + 2, `unexpected universe count: ${universe.length}`)
+    assert(universe.length === CANDIDATE_REGISTRY.length + 8, `unexpected universe count: ${universe.length}`)
     assert(universe.some((item) => item.id === 'pericarditis' && item.shadowOnly), 'pericarditis shadow candidate missing')
     assert(universe.some((item) => item.id === 'viral_infection' && item.shadowOnly), 'viral infection shadow candidate missing')
+    assert(universe.some((item) => item.id === 'heart_failure' && item.shadowOnly), 'heart failure shadow candidate missing')
+    assert(universe.some((item) => item.id === 'infectious_gastroenteritis' && item.shadowOnly), 'infectious gastroenteritis shadow candidate missing')
+    assert(universe.some((item) => item.id === 'pancreatitis' && item.shadowOnly), 'pancreatitis shadow candidate missing')
+    assert(universe.some((item) => item.id === 'mesenteric_ischemia' && item.shadowOnly), 'mesenteric ischemia shadow candidate missing')
+    assert(universe.some((item) => item.id === 'abdominal_vasculitis' && item.shadowOnly), 'abdominal vasculitis shadow candidate missing')
   })
 
   addTest(tests, '02 states prior and evidence models are exposed', () => {
@@ -286,7 +291,7 @@ const report = {
   progressiveArchitecture: 'shadow progressive narrowing over complete candidate universe; production ranking untouched',
   candidateUniverseCount: buildCandidateUniverse().length,
   registryCandidateCount: CANDIDATE_REGISTRY.length,
-  shadowOnlyCandidates: ['pericarditis', 'viral_infection'],
+  shadowOnlyCandidates: ['pericarditis', 'viral_infection', 'heart_failure', 'infectious_gastroenteritis', 'pancreatitis', 'mesenteric_ischemia', 'abdominal_vasculitis'],
   candidateStates: Object.values(PROGRESSIVE_CANDIDATE_STATES),
   priorModel: Object.values(PRIOR_MODEL),
   evidenceModel: Object.values(EVIDENCE_EFFECTS),

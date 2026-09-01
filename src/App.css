@@ -1207,6 +1207,32 @@ textarea:focus-visible {
   padding: 14px;
 }
 
+.derived-pattern-card {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid rgba(34, 211, 238, 0.22);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.44);
+}
+
+.derived-pattern-card span {
+  color: var(--nav-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.derived-pattern-card strong {
+  color: var(--nav-text);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.derived-pattern-card.active {
+  border-color: rgba(34, 211, 238, 0.42);
+  background: rgba(8, 47, 73, 0.5);
+}
+
 .adaptive-redflags {
   position: sticky;
   top: 62px;

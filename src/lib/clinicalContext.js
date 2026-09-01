@@ -59,6 +59,7 @@ const BOOLEAN_FINDING_MAP = {
   myalgiaArthralgia: ['symptomDomains.constitutional.myalgiaArthralgia'],
   prominentArthralgia: ['symptomDomains.constitutional.prominentArthralgia'],
   leukopenia: ['hematology.leukopenia'],
+  positiveBloodCulture: ['infectionPatterns.positiveBloodCulture'],
 
   travelMalariaRiskArea: ['exposures.internationalTravel.regionClassifications.malariaRiskArea'],
   travelDengueRiskArea: ['exposures.internationalTravel.regionClassifications.dengueRiskArea'],
@@ -82,7 +83,9 @@ const BOOLEAN_FINDING_MAP = {
   urinaryFrequency: ['symptomDomains.urinary.frequency'],
   cloudyUrine: ['symptomDomains.urinary.cloudyUrine'],
   urinaryCvaTenderness: ['physicalFindings.cvaTenderness'],
+  cvaTenderness: ['physicalFindings.cvaTenderness'],
   urinaryBackPain: ['symptomDomains.backSpine.backPain'],
+  dysuria: ['symptomDomains.urinary.dysuria'],
   urinaryChills: ['infectionPatterns.chills'],
   nauseaVomiting: ['symptomDomains.abdominal.nauseaVomiting'],
   urinaryCatheter: ['devicesProcedures.urinaryCatheter'],
@@ -106,10 +109,25 @@ const BOOLEAN_FINDING_MAP = {
   bloodyStool: ['symptomDomains.abdominal.bloodyStool'],
   recentAntibiotics: ['medications.recentAntibiotics'],
   recentHospitalization: ['exposures.healthcare', 'devicesProcedures.recentHospitalization'],
+  foodExposure: ['exposures.food.state', 'exposures.foodExposure'],
   abdominalSurgeryHistory: ['devicesProcedures.abdominalSurgeryHistory'],
   abdominalChills: ['infectionPatterns.chills'],
   vomiting: ['symptomDomains.abdominal.vomiting'],
   abdominalImmunosuppression: ['hostFactors.immunosuppression'],
+  sickContact: ['exposures.sickContact'],
+  rightLowerQuadrantPain: ['symptomDomains.abdominal.rightLowerQuadrantPain'],
+  leftLowerQuadrantPain: ['symptomDomains.abdominal.leftLowerQuadrantPain'],
+  epigastricPain: ['symptomDomains.abdominal.epigastricPain'],
+  backRadiation: ['symptomDomains.abdominal.backRadiation'],
+  bowelHabitChange: ['symptomDomains.abdominal.bowelHabitChange'],
+  suddenAbdominalPain: ['symptomDomains.abdominal.suddenPain'],
+  severeAbdominalPain: ['symptomDomains.abdominal.severePain', 'physicalFindings.severePain'],
+  abdominalPainOutOfProportion: ['symptomDomains.abdominal.painOutOfProportion'],
+  vascularDisease: ['hostFactors.vascularDisease'],
+  atrialFibrillation: ['hostFactors.atrialFibrillation'],
+  lactateElevation: ['physicalFindings.lactateElevation'],
+  hepatobiliaryHistory: ['hostFactors.hepatobiliaryHistory'],
+  biliaryInstrumentation: ['devicesProcedures.biliaryInstrumentation'],
 
   skinRedness: ['symptomDomains.skinSoftTissue.redness'],
   skinSwelling: ['symptomDomains.skinSoftTissue.swelling'],
@@ -129,6 +147,28 @@ const BOOLEAN_FINDING_MAP = {
   skinMultiOrganFailure: ['physicalFindings.multiOrganFailure'],
   generalizedRash: ['physicalFindings.rash'],
 
+  lumbarTenderness: ['physicalFindings.lumbarTenderness'],
+  walkingDifficulty: ['symptomDomains.backSpine.walkingDifficulty'],
+  movementDifficulty: ['symptomDomains.backSpine.movementDifficulty'],
+  backPainChills: ['infectionPatterns.chills'],
+  severeBackPain: ['symptomDomains.backSpine.severePain', 'physicalFindings.severePain'],
+
+  acuteJointPain: ['symptomDomains.boneJoint.acuteJointPain'],
+  jointSwelling: ['symptomDomains.boneJoint.jointSwelling'],
+  kneeJointPain: ['symptomDomains.boneJoint.kneeJointPain'],
+  polyarthralgia: ['symptomDomains.boneJoint.polyarthralgia'],
+  jointRedness: ['symptomDomains.boneJoint.redness'],
+  jointWarmth: ['symptomDomains.boneJoint.warmth'],
+  limitedRangeOfMotion: ['symptomDomains.boneJoint.limitedRangeOfMotion'],
+  severeJointPain: ['symptomDomains.boneJoint.severePain'],
+  monoarthritis: ['symptomDomains.boneJoint.monoarthritis'],
+  prostheticJoint: ['devicesProcedures.prostheticJoint'],
+  boneBackPain: ['symptomDomains.backSpine.backPain'],
+  boneDiabetes: ['hostFactors.diabetes'],
+  boneImmunosuppression: ['hostFactors.immunosuppression'],
+  bonePostoperative: ['devicesProcedures.postoperative'],
+  boneTrauma: ['exposures.trauma'],
+
   cnsHeadache: ['symptomDomains.neurologic.headache'],
   cnsNeckStiffness: ['physicalFindings.neckStiffness'],
   cnsAlteredMentalStatus: ['symptomDomains.neurologic.alteredMentalStatus'],
@@ -142,6 +182,17 @@ const BOOLEAN_FINDING_MAP = {
   cnsShoulderThighPain: ['symptomDomains.constitutional.shoulderThighPain'],
   focalNeurologicDeficit: ['physicalFindings.focalNeurologicDeficit'],
   suspectedPapilledema: ['physicalFindings.suspectedPapilledema'],
+  neckHeadache: ['symptomDomains.neurologic.headache'],
+  neckStiffness: ['physicalFindings.neckStiffness'],
+  neckAlteredMentalStatus: ['symptomDomains.neurologic.alteredMentalStatus'],
+  acuteNeckPain: ['symptomDomains.neck.acutePain'],
+  limitedNeckRotation: ['physicalFindings.limitedNeckRotation'],
+  olderAdult: ['hostFactors.olderAdult'],
+  shoulderThighPain: ['symptomDomains.constitutional.shoulderThighPain'],
+  neckBackPain: ['symptomDomains.backSpine.backPain'],
+  severeHeadache: ['symptomDomains.neurologic.severeHeadache'],
+  severeNeckPain: ['symptomDomains.neck.severePain'],
+  meningealSigns: ['physicalFindings.meningealSigns'],
 
   bsiChills: ['infectionPatterns.chills'],
   bsiPositiveBloodCulture: ['infectionPatterns.positiveBloodCulture'],
@@ -374,6 +425,12 @@ function createEmptyContext(rawAnswers) {
         'free-text country names are not used directly in medical rules',
       ],
     },
+    derivedInflammationPattern: {
+      bt: 'not_assessed',
+      wbc: 'not_assessed',
+      crp: 'not_assessed',
+      crpOnlyPattern: false,
+    },
   }
 }
 
@@ -496,6 +553,22 @@ function deriveClinicalContext(context) {
   const bt = context.vitals.bt?.value
   const crp = context.inflammation.crp?.value
   const wbc = context.inflammation.wbc?.value
+  const btPattern = deriveBtPattern(context.vitals.bt)
+  const wbcPattern = deriveWbcPattern(context.inflammation.wbc)
+  const crpPattern = deriveCrpPattern(context.inflammation.crp)
+  const crpOnlyPattern =
+    btPattern === 'no_fever' &&
+    Number.isFinite(wbc) &&
+    wbc <= 10000 &&
+    Number.isFinite(crp) &&
+    crp >= 0.3
+
+  context.derivedInflammationPattern = {
+    bt: btPattern,
+    wbc: wbcPattern,
+    crp: crpPattern,
+    crpOnlyPattern,
+  }
 
   context.vitals.fever = createFinding(
     Number.isFinite(bt)
@@ -521,6 +594,25 @@ function deriveClinicalContext(context) {
       : FINDING_STATES.UNKNOWN,
     { sourceField: 'wbc', sourceStep: 'step1', rawValue: context.inflammation.wbc?.rawValue },
   )
+  context.vitals.tachycardia = createFinding(
+    Number.isFinite(context.vitals.hr?.value)
+      ? context.vitals.hr.value >= 100
+        ? FINDING_STATES.PRESENT
+        : FINDING_STATES.ABSENT
+      : FINDING_STATES.UNKNOWN,
+    { sourceField: 'heartRate', sourceStep: 'step1', rawValue: context.vitals.hr?.rawValue },
+  )
+  if (Number.isFinite(wbc)) {
+    setFindingAtPath(
+      context,
+      'hematology.leukopenia',
+      createFinding(wbc < 4000 ? FINDING_STATES.PRESENT : FINDING_STATES.ABSENT, {
+        sourceField: 'wbc',
+        sourceStep: 'step1',
+        rawValue: context.inflammation.wbc?.rawValue,
+      }),
+    )
+  }
 
   if (context.vitals.bt?.measurementState !== FINDING_STATES.PRESENT) {
     context.dataQuality.missingImportantData.push('BT not measured')
@@ -543,6 +635,27 @@ function deriveClinicalContext(context) {
       })
     }
   }
+}
+
+function deriveBtPattern(measurement) {
+  if (measurement?.measurementState !== FINDING_STATES.PRESENT) return 'not_assessed'
+  return measurement.value >= 38 ? 'fever' : 'no_fever'
+}
+
+function deriveWbcPattern(measurement) {
+  if (measurement?.measurementState !== FINDING_STATES.PRESENT) return 'not_assessed'
+  if (measurement.value > 10000) return 'leukocytosis'
+  if (measurement.value < 4000) return 'leukopenia'
+  return 'normal_wbc'
+}
+
+function deriveCrpPattern(measurement) {
+  if (measurement?.measurementState !== FINDING_STATES.PRESENT) return 'not_assessed'
+  if (measurement.value < 0.3) return 'normal_crp'
+  if (measurement.value < 1) return 'mild_crp_elevation'
+  if (measurement.value < 5) return 'crp_elevation'
+  if (measurement.value < 10) return 'high_crp'
+  return 'marked_crp'
 }
 
 function setFindingAtPath(target, path, finding) {
