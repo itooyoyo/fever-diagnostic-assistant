@@ -74,6 +74,10 @@ function topIds(result, count = 5) {
   return result.candidates.slice(0, count).map((item) => item.id)
 }
 
+function topQuestionIds(result, count = 3) {
+  return result.nextQuestions.slice(0, count).map((item) => item.id)
+}
+
 function duplicateEvidencePaths(candidate) {
   const counts = new Map()
   for (const item of candidate.evidence || []) counts.set(item.path, (counts.get(item.path) || 0) + 1)
@@ -1000,6 +1004,62 @@ function runProductionTests() {
     assert(topScore < 90, `CRP no-localizing alone should not create extreme score: ${topScore}`)
     assert(closeCandidates >= 3, `CRP no-localizing should keep broad differential, got ${closeCandidates} close candidates`)
     assert(result.hardExclusions.length === 0, 'hard exclusion should remain empty')
+  })
+
+  addTest(tests, '119 E1 respiratory phenotype prioritizes cough sputum dyspnea', () => {
+    const result = buildProgressiveNarrowingShadow({ emergencySigns: [], step2Symptoms: ['symptomRespiratory'], age: '72', temperature: '38.7', heartRate: '108', spo2: '91', wbc: '15200', crp: '14', travelExposure: 'not_assessed' }, { allowFuturePhaseQuestions: true })
+    const q1 = topQuestionIds(result)
+    assert(q1.filter((id) => ['q_resp_cough', 'q_resp_sputum', 'q_resp_dyspnea', 'q_resp_chest_pain'].includes(id)).length >= 2, `respiratory specific questions should be round 1: ${q1.join(',')}`)
+    assert(!q1.includes('q_travel_recent') && !q1.includes('q_back_bacteremia_context'), `generic travel/back should not occupy respiratory round 1: ${q1.join(',')}`)
+    assert(topIds(result, 3).includes('pneumonia'), `pneumonia should remain top 3: ${topIds(result, 5).join(',')}`)
+  })
+
+  addTest(tests, '120 E1 PE phenotype prioritizes thrombosis discriminator', () => {
+    const result = buildProgressiveNarrowingShadow({ emergencySigns: [], step2Symptoms: ['symptomRespiratory'], age: '64', temperature: '36.8', heartRate: '112', spo2: '89', wbc: '7800', crp: '3.8', respDyspnea: true, chestPain: true, travelExposure: 'not_assessed' }, { allowFuturePhaseQuestions: true })
+    const q1 = topQuestionIds(result)
+    assert(q1[0] === 'q_sys_thrombosis', `PE discriminator should be first: ${q1.join(',')}`)
+    assert(!q1.includes('q_travel_recent') && !q1.includes('q_back_local_pain'), `generic travel/back should not outrank PE discriminator: ${q1.join(',')}`)
+    assert(topIds(result, 3).includes('dvt_pe'), `DVT/PE should remain top 3: ${topIds(result, 5).join(',')}`)
+  })
+
+  addTest(tests, '121 E1 neck phenotype prioritizes acute rotation and CNS safety', () => {
+    const result = buildProgressiveNarrowingShadow({ emergencySigns: [], step2Symptoms: ['symptomNeckPain'], age: '81', temperature: '37.4', wbc: '9100', crp: '8', travelExposure: 'not_assessed' }, { allowFuturePhaseQuestions: true })
+    const q1 = topQuestionIds(result)
+    assert(q1.includes('q_neck_acute_rotation'), `acute neck/rotation should be round 1: ${q1.join(',')}`)
+    assert(q1.includes('q_neuro_neck_stiffness') || q1.includes('q_neuro_altered'), `CNS safety question should be preserved: ${q1.join(',')}`)
+  })
+
+  addTest(tests, '122 E1 tick phenotype prioritizes domestic outdoor exposure separately from travel', () => {
+    const result = buildProgressiveNarrowingShadow({ emergencySigns: [], step2Symptoms: ['symptomNoLocalizing'], age: '58', temperature: '37.0', wbc: '2900', crp: '5.8', generalizedRash: true, thrombocytopenia: true, astAltElevation: true, travelExposure: 'not_assessed' }, { allowFuturePhaseQuestions: true })
+    const q1 = topQuestionIds(result)
+    for (const id of ['q_exp_outdoor', 'q_exp_tick_bite', 'q_exp_eschar']) assert(q1.includes(id), `tick exposure question should be round 1: ${q1.join(',')}`)
+    for (const id of ['sfts', 'japanese_spotted_fever', 'scrub_typhus']) assert(topIds(result, 5).includes(id), `${id} should remain top 5: ${topIds(result, 8).join(',')}`)
+    assert(result.hardExclusions.length === 0, 'tick phenotype should not create hard exclusion')
+  })
+
+  addTest(tests, '123 E1 back phenotype prioritizes spine mobility and bacteremia context', () => {
+    const result = buildProgressiveNarrowingShadow({ emergencySigns: [], step2Symptoms: ['symptomBackPain'], age: '69', temperature: '37.3', wbc: '8900', crp: '11', travelExposure: 'not_assessed' }, { allowFuturePhaseQuestions: true })
+    const q1 = topQuestionIds(result)
+    for (const id of ['q_back_local_pain', 'q_back_bacteremia_context', 'q_back_neuro_mobility']) assert(q1.includes(id), `back-pain discriminator should be round 1: ${q1.join(',')}`)
+    assert(!q1.includes('q_travel_recent'), `travel should not be fixed first in back-pain phenotype: ${q1.join(',')}`)
+    assert(topIds(result, 5).some((id) => ['vertebral_osteomyelitis', 'deep_infectious_focus'].includes(id)), `deep/spine infection should remain visible: ${topIds(result, 8).join(',')}`)
+  })
+
+  addTest(tests, '124 E1 no-localizing keeps generic questions and swaps after answers', () => {
+    const first = buildProgressiveNarrowingShadow({ emergencySigns: [], step2Symptoms: ['symptomNoLocalizing'], age: '84', temperature: '38.2', wbc: '9000', crp: '5.0', travelExposure: 'not_assessed' }, { allowFuturePhaseQuestions: true })
+    const q1 = topQuestionIds(first)
+    assert(q1.includes('q_travel_recent') && q1.includes('q_back_bacteremia_context'), `no-localizing may use generic discriminators: ${q1.join(',')}`)
+    const second = buildProgressiveNarrowingShadow({ emergencySigns: [], step2Symptoms: ['symptomNoLocalizing'], age: '84', temperature: '38.2', wbc: '9000', crp: '5.0', travelExposure: 'absent', positiveBloodCulture: false, unknownLdhHigh: false }, { allowFuturePhaseQuestions: true, explicitAbsences: ['positiveBloodCulture', 'unknownLdhHigh'] })
+    const q2 = topQuestionIds(second)
+    assert(q1.every((id) => !q2.includes(id)), `answered no-localizing questions should swap: q1=${q1.join(',')} q2=${q2.join(',')}`)
+  })
+
+  addTest(tests, '125 E1 CRP-only does not re-ask fever WBC CRP and preserves broad differential', () => {
+    const result = buildProgressiveNarrowingShadow({ emergencySigns: [], step2Symptoms: ['symptomNoLocalizing'], age: '66', temperature: '36.8', wbc: '7200', crp: '6.5', travelExposure: 'not_assessed' }, { allowFuturePhaseQuestions: true })
+    const q1 = topQuestionIds(result)
+    assert(!q1.some((id) => /fever|wbc|crp/i.test(id)), `CRP-only should not ask fever/WBC/CRP again: ${q1.join(',')}`)
+    assert(result.normalizedClinicalContext.derivedInflammationPattern.crpOnlyPattern === true, 'CRP-only pattern should remain derived')
+    assert(hasVisible(result, ['infective_endocarditis', 'vertebral_osteomyelitis', 'pmr_gca', 'intravascular_lymphoma', 'drug_fever', 'dvt_pe']), 'CRP-only broad differential should remain visible')
   })
 
   return tests

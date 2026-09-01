@@ -1369,6 +1369,7 @@ function uniqueQuestionsById(questions) {
 
 function buildTravelGateQuestions(context) {
   if (getFindingState(context, 'exposures.internationalTravel.state') !== FINDING_STATES.NOT_ASSESSED) return []
+  const informationValue = hasSpecificSymptomPhenotype(context) ? 42 : 120
   return [
     {
       id: 'q_travel_recent',
@@ -1378,7 +1379,7 @@ function buildTravelGateQuestions(context) {
       answerType: 'findingState',
       options: findingStateOptions(),
       sourceCandidates: ['malaria', 'dengue', 'chikungunya'],
-      informationValue: 120,
+      informationValue,
       candidateEffects: { malaria: EVIDENCE_EFFECTS.WEAK_SUPPORT, dengue: EVIDENCE_EFFECTS.WEAK_SUPPORT, chikungunya: EVIDENCE_EFFECTS.WEAK_SUPPORT },
       selectionReasons: ['渡航関連感染症の入口確認'],
       eligible: true,
@@ -1489,6 +1490,7 @@ function scoreDiscriminationQuestion(question, context, topCandidateIds, options
 
   const matchedCandidates = question.sourceCandidates.filter((id) => topCandidateIds.has(id))
   const candidateEffects = Object.fromEntries(question.sourceCandidates.map((id) => [id, matchedCandidates.includes(id) ? EVIDENCE_EFFECTS.SUPPORT : EVIDENCE_EFFECTS.NEUTRAL]))
+  const priorityAdjustment = questionPriorityAdjustment(question, context)
   const priorityValue = {
     [PRIORITY_CLASS.CRITICAL]: 80,
     [PRIORITY_CLASS.DISCRIMINATION_HIGH]: 60,
@@ -1496,11 +1498,11 @@ function scoreDiscriminationQuestion(question, context, topCandidateIds, options
     [PRIORITY_CLASS.MODERATE]: 35,
     [PRIORITY_CLASS.LOW]: 20,
   }[question.priorityClass] || 0
-  const informationValue = priorityValue + matchedCandidates.length * 12 + (question.safetyRole ? 10 : 0)
+  const informationValue = priorityValue + matchedCandidates.length * 12 + (question.safetyRole ? 10 : 0) + priorityAdjustment
 
   return {
     ...question,
-    eligible: matchedCandidates.length > 0 || question.priorityClass === PRIORITY_CLASS.CRITICAL,
+    eligible: matchedCandidates.length > 0 || question.priorityClass === PRIORITY_CLASS.CRITICAL || priorityAdjustment > 0,
     relevance: matchedCandidates.length > 0 ? RELEVANCE.HIGH : RELEVANCE.MEDIUM,
     informationValue,
     candidateEffects,
@@ -1509,6 +1511,84 @@ function scoreDiscriminationQuestion(question, context, topCandidateIds, options
       question.safetyRole ? `safety role: ${question.safetyRole}` : null,
     ].filter(Boolean),
   }
+}
+
+function questionPriorityAdjustment(question, context) {
+  let adjustment = 0
+
+  if (hasRespiratoryPhenotype(context)) {
+    adjustment += {
+      q_resp_cough: 88,
+      q_resp_sputum: 82,
+      q_resp_dyspnea: 48,
+      q_resp_chest_pain: 42,
+      q_chest_pain_character: 42,
+      q_bsi_positive_culture: -22,
+      q_back_bacteremia_context: -34,
+      q_back_local_pain: -36,
+      q_travel_recent: -36,
+    }[question.id] || 0
+  }
+
+  if (hasPeQuestionPhenotype(context)) {
+    adjustment += {
+      q_sys_thrombosis: 132,
+      q_resp_dyspnea: 38,
+      q_resp_chest_pain: 30,
+      q_chest_pain_character: 28,
+      q_resp_cough: -86,
+      q_resp_sputum: -82,
+      q_back_local_pain: -42,
+      q_travel_recent: -34,
+      q_bsi_positive_culture: -20,
+    }[question.id] || 0
+  }
+
+  if (hasCnsNeckPhenotype(context)) {
+    adjustment += {
+      q_neck_acute_rotation: 88,
+      q_neuro_neck_stiffness: 58,
+      q_neuro_altered: 42,
+      q_neuro_headache: 30,
+      q_back_bacteremia_context: -36,
+      q_travel_recent: -34,
+      q_sys_bsymptom_ldh: -24,
+    }[question.id] || 0
+  }
+
+  if (hasBackPhenotype(context)) {
+    adjustment += {
+      q_back_local_pain: 72,
+      q_back_neuro_mobility: 56,
+      q_uri_flank: 34,
+      q_uri_dysuria: 26,
+      q_back_bacteremia_context: 28,
+      q_bsi_positive_culture: 20,
+      q_travel_recent: -38,
+      q_sys_bsymptom_ldh: -24,
+    }[question.id] || 0
+  }
+
+  if (hasTickQuestionPhenotype(context)) {
+    adjustment += {
+      q_exp_outdoor: 96,
+      q_exp_tick_bite: 72,
+      q_exp_eschar: 72,
+      q_travel_recent: -44,
+      q_back_bacteremia_context: -30,
+      q_sys_bsymptom_ldh: -26,
+    }[question.id] || 0
+  }
+
+  if (hasNoLocalizingPhenotype(context) || isCrpOnlyPattern(context)) {
+    adjustment += {
+      q_back_bacteremia_context: 10,
+      q_sys_bsymptom_ldh: 10,
+      q_bsi_positive_culture: 6,
+    }[question.id] || 0
+  }
+
+  return adjustment
 }
 
 function isImportantUnknown(candidate, path) {
@@ -1551,6 +1631,28 @@ function hasRespiratoryPhenotype(context) {
     getFindingState(context, 'symptomDomains.cardiopulmonary.chestPain') === FINDING_STATES.PRESENT ||
     getFindingState(context, 'vitals.lowSpo2') === FINDING_STATES.PRESENT ||
     getFindingState(context, 'physicalFindings.respiratoryImagingAbnormality') === FINDING_STATES.PRESENT
+}
+
+function hasSpecificSymptomPhenotype(context) {
+  return hasRespiratoryPhenotype(context) ||
+    hasPeQuestionPhenotype(context) ||
+    hasCnsNeckPhenotype(context) ||
+    hasBackPhenotype(context) ||
+    hasTickQuestionPhenotype(context) ||
+    hasAbdominalPhenotype(context) ||
+    hasJointPhenotype(context) ||
+    hasSkinPhenotype(context)
+}
+
+function hasPeQuestionPhenotype(context) {
+  const chestOrDyspnea = getFindingState(context, 'symptomDomains.cardiopulmonary.domainSelected') === FINDING_STATES.PRESENT ||
+    getFindingState(context, 'symptomDomains.respiratory.dyspnea') === FINDING_STATES.PRESENT ||
+    getFindingState(context, 'symptomDomains.respiratory.chestPain') === FINDING_STATES.PRESENT ||
+    getFindingState(context, 'symptomDomains.cardiopulmonary.chestPain') === FINDING_STATES.PRESENT
+  const physiologicSupport = getFindingState(context, 'vitals.lowSpo2') === FINDING_STATES.PRESENT ||
+    getFindingState(context, 'vitals.tachycardia') === FINDING_STATES.PRESENT ||
+    getFindingState(context, 'physicalFindings.legSwelling') === FINDING_STATES.PRESENT
+  return chestOrDyspnea && physiologicSupport
 }
 
 function hasRespiratorySputumAndImaging(context) {
@@ -1727,6 +1829,17 @@ function hasTickSpecificSupport(context) {
     getFindingState(context, 'hematology.leukopenia') === FINDING_STATES.PRESENT ||
     getFindingState(context, 'physicalFindings.hepatobiliaryEnzymeElevation') === FINDING_STATES.PRESENT ||
     getFindingState(context, 'physicalFindings.ldhHigh') === FINDING_STATES.PRESENT
+}
+
+function hasTickQuestionPhenotype(context) {
+  return hasNoLocalizingPhenotype(context) &&
+    (getFindingState(context, 'physicalFindings.rash') === FINDING_STATES.PRESENT ||
+      getFindingState(context, 'hematology.leukopenia') === FINDING_STATES.PRESENT ||
+      getFindingState(context, 'hematology.thrombocytopenia') === FINDING_STATES.PRESENT ||
+      getFindingState(context, 'physicalFindings.hepatobiliaryEnzymeElevation') === FINDING_STATES.PRESENT ||
+      getFindingState(context, 'exposures.outdoorExposure') === FINDING_STATES.PRESENT ||
+      getFindingState(context, 'exposures.tickExposure') === FINDING_STATES.PRESENT ||
+      getFindingState(context, 'exposures.eschar') === FINDING_STATES.PRESENT)
 }
 
 function hasTravelSpecificSupport(context, candidateId) {
