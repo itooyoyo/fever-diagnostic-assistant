@@ -391,7 +391,7 @@ function addInitialProblemEvidence(candidate, context, evidence) {
   if (isHighCrp(context) && ['drug_fever', 'pmr', 'pmr_gca', 'tumor_fever', 'intravascular_lymphoma', 'cppd', 'tafro'].includes(candidate.id)) {
     evidence.push(evidenceItem(EVIDENCE_EFFECTS.WEAK_SUPPORT, 'inflammation.highCrp', 'CRP高値', FINDING_STATES.PRESENT))
   }
-  if (isAfebrile(context) && AFEBRILE_CRP_PRIORITY.has(candidate.id)) {
+  if (isAfebrile(context) && AFEBRILE_CRP_PRIORITY.has(candidate.id) && !TICK_CANDIDATES.has(candidate.id)) {
     evidence.push(evidenceItem(EVIDENCE_EFFECTS.WEAK_SUPPORT, 'vitals.fever', '現在無熱でも保持', FINDING_STATES.ABSENT))
   }
   if (isCrpOnlyPattern(context) && AFEBRILE_CRP_PRIORITY.has(candidate.id)) {
@@ -472,6 +472,11 @@ function addChestEvidence(candidate, context, evidence) {
 
 function addTickEvidence(candidate, context, evidence) {
   if (!TICK_CANDIDATES.has(candidate.id)) return
+  if (isFeverPresent(context) && hasTickSpecificSupport(context)) {
+    evidence.push(evidenceItem(EVIDENCE_EFFECTS.WEAK_SUPPORT, 'vitals.fever', '発熱', FINDING_STATES.PRESENT))
+  } else if (isAfebrile(context)) {
+    evidence.push(evidenceItem(EVIDENCE_EFFECTS.WEAK_CONTRADICTION, 'vitals.fever', '発熱なし', FINDING_STATES.ABSENT))
+  }
   for (const path of ['exposures.outdoorExposure', 'exposures.tickExposure', 'exposures.knownTickBite', 'exposures.eschar', 'physicalFindings.rash', 'hematology.thrombocytopenia', 'electrolytes.hyponatremia']) {
     const state = getFindingState(context, path)
     if (state === FINDING_STATES.PRESENT) evidence.push(evidenceItem(effectForTick(path), path, labelForFinding(path), state))

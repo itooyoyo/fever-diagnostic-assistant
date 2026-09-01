@@ -1037,6 +1037,46 @@ function runProductionTests() {
     assert(result.hardExclusions.length === 0, 'tick phenotype should not create hard exclusion')
   })
 
+  addTest(tests, '122a TICK-REG-1 afebrile outdoor rash thrombocytopenia AST ALT keeps tick-borne top 5', () => {
+    const result = buildProgressiveNarrowingShadow({ emergencySigns: [], step2Symptoms: ['symptomNoLocalizing'], temperature: '36.8', wbc: '3000', crp: '5', outdoorExposure: true, generalizedRash: true, thrombocytopenia: true, hepatobiliaryEnzymeElevation: true, travelExposure: 'not_assessed' }, { allowFuturePhaseQuestions: true })
+    assert(['sfts', 'japanese_spotted_fever', 'scrub_typhus'].some((id) => topIds(result, 5).includes(id)), `tick-borne candidates should remain top 5 when afebrile: ${topIds(result, 8).join(',')}`)
+    assert(result.hardExclusions.length === 0, 'afebrile tick phenotype should not create hard exclusion')
+  })
+
+  addTest(tests, '122b TICK-REG-2 afebrile outdoor thrombocytopenia eschar keeps tick-borne visible', () => {
+    const result = buildProgressiveNarrowingShadow({ emergencySigns: [], step2Symptoms: ['symptomNoLocalizing'], temperature: '36.8', wbc: '3200', crp: '4', outdoorExposure: true, thrombocytopenia: true, eschar: true, travelExposure: 'not_assessed' }, { allowFuturePhaseQuestions: true })
+    for (const id of ['sfts', 'japanese_spotted_fever', 'scrub_typhus']) assert(find(result, id)?.removed === false && bandOf(result, id) !== 'none', `${id} should remain visible when afebrile with tick clues: ${topIds(result, 8).join(',')}`)
+    assert(result.hardExclusions.length === 0, 'afebrile tick phenotype should not create hard exclusion')
+  })
+
+  addTest(tests, '122c TICK-REG-3 rash alone without outdoor exposure does not overrank tick-borne but is not excluded by afebrile', () => {
+    const result = buildProgressiveNarrowingShadow({ emergencySigns: [], step2Symptoms: ['symptomSkinFindings'], temperature: '36.8', wbc: '7000', crp: '4', generalizedRash: true, outdoorExposure: false, travelExposure: 'not_assessed' }, { allowFuturePhaseQuestions: true, explicitAbsences: ['outdoorExposure'] })
+    for (const id of ['sfts', 'japanese_spotted_fever', 'scrub_typhus']) {
+      const candidate = find(result, id)
+      assert(candidate?.removed === false, `${id} should not be removed by afebrile state`)
+      assert(candidate.score < 70, `${id} should not be overranked by rash alone without outdoor exposure: ${candidate.score}`)
+    }
+    assert(result.hardExclusions.length === 0, 'rash-only afebrile context should not create hard exclusion')
+  })
+
+  addTest(tests, '122d TICK-REG-4 BT not assessed keeps tick-borne and does not convert to afebrile', () => {
+    const result = buildProgressiveNarrowingShadow({ emergencySigns: [], step2Symptoms: ['symptomNoLocalizing'], wbc: '3000', crp: '5', outdoorExposure: true, generalizedRash: true, thrombocytopenia: true, travelExposure: 'not_assessed' }, { allowFuturePhaseQuestions: true })
+    assert(result.normalizedClinicalContext.derivedInflammationPattern.bt === 'not_assessed', `BT should remain not_assessed: ${result.normalizedClinicalContext.derivedInflammationPattern.bt}`)
+    assert(result.normalizedClinicalContext.vitals.fever.state === FINDING_STATES.UNKNOWN, `BT not assessed should not become afebrile: ${result.normalizedClinicalContext.vitals.fever.state}`)
+    for (const id of ['sfts', 'japanese_spotted_fever', 'scrub_typhus']) assert(topIds(result, 5).includes(id), `${id} should remain top 5 with BT not assessed: ${topIds(result, 8).join(',')}`)
+  })
+
+  addTest(tests, '122e TICK-REG-5 paired afebrile versus febrile preserves tick-borne visibility', () => {
+    const shared = { emergencySigns: [], step2Symptoms: ['symptomNoLocalizing'], wbc: '3000', crp: '5', outdoorExposure: true, generalizedRash: true, thrombocytopenia: true, hepatobiliaryEnzymeElevation: true, travelExposure: 'not_assessed' }
+    const afebrile = buildProgressiveNarrowingShadow({ ...shared, temperature: '36.8' }, { allowFuturePhaseQuestions: true })
+    const febrile = buildProgressiveNarrowingShadow({ ...shared, temperature: '38.5' }, { allowFuturePhaseQuestions: true })
+    for (const id of ['sfts', 'japanese_spotted_fever', 'scrub_typhus']) {
+      assert(find(afebrile, id)?.removed === false && find(febrile, id)?.removed === false, `${id} should not be removed in paired fever comparison`)
+      assert(bandOf(afebrile, id) !== 'none' && bandOf(febrile, id) !== 'none', `${id} should remain visible in paired fever comparison`)
+    }
+    assert(afebrile.hardExclusions.length === 0 && febrile.hardExclusions.length === 0, 'paired fever comparison should not create hard exclusion')
+  })
+
   addTest(tests, '123 E1 back phenotype prioritizes spine mobility and bacteremia context', () => {
     const result = buildProgressiveNarrowingShadow({ emergencySigns: [], step2Symptoms: ['symptomBackPain'], age: '69', temperature: '37.3', wbc: '8900', crp: '11', travelExposure: 'not_assessed' }, { allowFuturePhaseQuestions: true })
     const q1 = topQuestionIds(result)
